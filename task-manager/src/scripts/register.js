@@ -11,7 +11,7 @@ document.querySelector("form").addEventListener("submit", function(event){
     function msgFeed(text , type){
         msgFeedback.innerText = text;
 
-        msgFeedback.className = "p-3 roundedd-md text-sm font-medium mb-4 text-center";
+        msgFeedback.className = "p-3 rounded-md text-sm font-medium mb-4 text-center";
 
         if (type === "error"){
             msgFeedback.classList.add("bg-red-100", "text-red-700");
