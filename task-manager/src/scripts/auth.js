@@ -1,6 +1,7 @@
-const isLogged = localStorage.getItem("isLogged");
+// Tenta buscar o usuário logado do localStorage
+const usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
 
-if (!isLogged) {
+// Se não existir nenhum usuário salvo, manda pro login
+if (!usuarioLogado) {
   window.location.href = "login.html";
 }
-

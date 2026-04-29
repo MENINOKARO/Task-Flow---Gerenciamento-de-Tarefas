@@ -1,27 +1,61 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <title>TESTEE!!!</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Dashboard</title>
 </head>
 
-<body>
-    <h1 class="text-4xl">TESTE 1111</h1>
+<body class="bg-slate-100 min-h-screen">
 
-    <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded">
+  <!-- BARRA SUPERIOR -->
+  <header class="bg-white shadow px-8 py-4 flex items-center justify-between">
+
+    <h1 class="text-xl font-bold text-blue-700">Gerenciador de tarefas</h1>
+
+    <div class="flex items-center gap-4">
+      <!-- Nome do usuário aparece aqui -->
+      <span class="text-slate-600 text-sm">
+        Olá, <strong id="nome-usuario">...</strong>
+      </span>
+
+      <button
+        onclick="logout()"
+        class="bg-red-500 hover:bg-red-600 text-white text-sm px-4 py-2 rounded-lg transition">
         Sair
-    </button>
+      </button>
+    </div>
 
-    <script>
-        function logout() {
-            localStorage.removeItem("isLogged");
-            window.location.href = "login.html";
-        }
-    </script>
+  </header>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main class="p-8">
+    <h2 class="text-2xl font-semibold text-slate-700">
+      Bem-vindo de volta, <span id="nome-boas-vindas">...</span>! 
+    </h2>
+    <p class="text-slate-500 mt-1">Suas tarefas vão aparecer aqui em breve.</p>
+  </main>
+
+   
+  <script src="../src/scripts/auth.js"></script>
+
+  <script>
+    //auth.js já rodou e garantiu que usuarioLogado existe
+    const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
+
+    // Preenche os elementos com o nome do usuário
+    document.getElementById("nome-usuario").innerText = usuario.username;
+    document.getElementById("nome-boas-vindas").innerText = usuario.username;
+
+    // Função de logout
+    function logout() {
+      localStorage.removeItem("isLogged");
+      localStorage.removeItem("usuarioLogado");
+      window.location.href = "login.html";
+    }
+  </script>
+
 </body>
-<script src="../src/scripts/auth.js"></script>
-
 </html>
