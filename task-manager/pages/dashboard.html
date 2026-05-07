@@ -1,27 +1,113 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow - Kanban Premium</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <title>TESTEE!!!</title>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .kanban-column { height: calc(100vh - 220px); }
+    </style>
 </head>
 
-<body>
-    <h1 class="text-4xl">TESTE 1111</h1>
+<body class="bg-[#F8FAFC] text-slate-800 antialiased">
 
-    <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded">
-        Sair
-    </button>
+    <div class="flex h-screen overflow-hidden">
 
-    <script>
-        function logout() {
-            localStorage.removeItem("isLogged");
-            window.location.href = "login.html";
-        }
-    </script>
+        <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between z-20 shrink-0">
+            <div>
+                <div class="p-6 flex items-center gap-3">
+                    <div class="bg-blue-600 text-white p-2 rounded-lg flex items-center justify-center shadow-blue-200 shadow-lg">
+                        <i class="ph ph-chart-bar text-xl"></i>
+                    </div>
+                    <span class="text-xl font-bold tracking-tight text-blue-900">TaskFlow</span>
+                </div>
+                <nav class="space-y-1 px-4">
+                    <button class="flex items-center gap-3 w-full px-4 py-2.5 text-sm font-semibold rounded-xl text-slate-500 hover:bg-slate-50 transition-all">
+                        <i class="ph ph-squares-four text-lg"></i> Dashboard
+                    </button>
+                    <button class="flex items-center gap-3 w-full px-4 py-2.5 text-sm font-bold rounded-xl bg-blue-50 text-blue-600 border-l-4 border-blue-600 shadow-sm">
+                        <i class="ph ph-kanban text-lg"></i> Kanban
+                    </button>
+                    <button class="flex items-center gap-3 w-full px-4 py-2.5 text-sm font-semibold rounded-xl text-slate-500 hover:bg-slate-50 transition-all">
+                        <i class="ph ph-list-dashes text-lg"></i> Backlog
+                    </button>
+                </nav>
+            </div>
+            <div class="p-4 border-t border-slate-100">
+                <button class="w-full flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 transition-colors">
+                    <img src="https://ui-avatars.com/api/?name=Nome+Teste&background=e2e8f0&color=475569" class="w-9 h-9 rounded-full border border-slate-200" />
+                    <div class="text-left">
+                        <p class="text-xs font-bold text-slate-900">Nome Teste</p>
+                        <p class="text-[10px] text-slate-500">email@exemplo.com</p>
+                    </div>
+                </button>
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col h-full overflow-hidden">
+            <header class="flex items-center justify-between px-8 py-4 bg-white border-b border-slate-200 z-10">
+                <div class="flex items-center gap-4">
+                    <h1 class="text-sm font-bold text-slate-400 uppercase tracking-widest">Workspace</h1>
+                    <span class="text-slate-300">/</span>
+                    <h2 class="text-lg font-bold text-blue-950">Sprint Kanban</h2>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="relative group">
+                        <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500"></i>
+                        <input type="text" placeholder="Buscar tarefas..." class="pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm w-64 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+                    </div>
+                    <button class="p-2 text-slate-500 hover:bg-slate-50 rounded-lg transition-colors"><i class="ph ph-bell text-xl"></i></button>
+                </div>
+            </header>
+
+            <div class="flex-1 overflow-x-auto p-8">
+                <div class="flex gap-6 h-full items-start">
+
+                    <div class="flex flex-col min-w-[320px] w-[320px] bg-slate-100/50 border border-slate-200/60 rounded-2xl p-3">
+                        <div class="flex items-center justify-between mb-4 px-2">
+                            <div class="flex items-center gap-2">
+                                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">A fazer</h3>
+                                <span id="count-todo" class="bg-white border border-slate-200 text-slate-500 text-[10px] font-bold px-2 py-0.5 rounded-md shadow-sm">0</span>
+                            </div>
+                            <button id="add-task" class="group flex items-center justify-center w-8 h-8 bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white rounded-lg transition-all duration-300 shadow-sm border border-blue-100">
+                                <i class="ph ph-plus-bold text-lg group-hover:rotate-90 transition-transform"></i>
+                            </button>
+                        </div>
+                        <div id="todo" class="kanban-column flex flex-col gap-3 overflow-y-auto pr-1">
+                            </div>
+                    </div>
+
+                    <div class="flex flex-col min-w-[320px] w-[320px] bg-blue-50/30 border border-blue-100 rounded-2xl p-3">
+                        <div class="flex items-center justify-between mb-4 px-2">
+                            <div class="flex items-center gap-2">
+                                <h3 class="text-xs font-bold uppercase tracking-wider text-blue-600">Em progresso</h3>
+                                <span id="count-doing" class="bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow-sm">0</span>
+                            </div>
+                        </div>
+                        <div id="doing" class="kanban-column flex flex-col gap-3 overflow-y-auto pr-1"></div>
+                    </div>
+
+                    <div class="flex flex-col min-w-[320px] w-[320px] bg-emerald-50/20 border border-emerald-100 rounded-2xl p-3">
+                        <div class="flex items-center gap-2 mb-4 px-2">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-600">Concluído</h3>
+                            <span id="count-done" class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-md">0</span>
+                        </div>
+                        <div id="done" class="kanban-column flex flex-col gap-3 overflow-y-auto pr-1"></div>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module" src="../src/scripts/dashboard.js"></script>
 </body>
-<script src="../src/scripts/auth.js"></script>
 
 </html>
