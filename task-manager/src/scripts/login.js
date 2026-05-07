@@ -8,13 +8,13 @@ document.querySelector("form").addEventListener("submit", function(e) {
   const email = document.querySelector("input[type='email']").value.trim();
   const password = document.querySelector("input[type='password']").value.trim();
 
-  // 1. PRIMEIRO: Verifica se os campos estão totalmente vazios
+  // Verifica se os campos estão totalmente vazios
   if (!email || !password) {
     showMessage("#msg-feedback", "Preencha todos os campos!", "error");
-    return; // Para a execução aqui
+    return; 
   }
 
-  // 2. SEGUNDO: Se não estiver vazio, verifica se o formato do e-mail faz sentido
+  // verifica se o formato do e-mail faz sentido
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
     showMessage("#msg-feedback", "O formato do e-mail é inválido!", "error");
@@ -39,7 +39,7 @@ document.querySelector("form").addEventListener("submit", function(e) {
     }, 1500);
 
   } else {
-    // 5. QUINTO: Se chegou aqui, é porque o e-mail/senha não batem
+    // Se chegou aqui, é porque o e-mail/senha não batem
     showMessage("#msg-feedback", "E-mail ou senha incorretos!", "error");
   }
 });
