@@ -212,4 +212,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     loadTasks();
+    // Expõe loadTasks globalmente para outros scripts usarem
+    window.reloadKanban = loadTasks;
 });

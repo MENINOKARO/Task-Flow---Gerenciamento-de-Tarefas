@@ -7,6 +7,9 @@
     <title>TaskFlow - Kanban Premium</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="../src/scripts/navigation.js"></script>
+    <script src="../src/scripts/dashboard.js"></script>
+    <script src="../src/scripts/backlog.js"></script> 
     <style>
         ::-webkit-scrollbar {
             width: 6px;
@@ -164,14 +167,28 @@
                     </div>
                 </div>
                 <!-- AREA DE DESENVOLVIMENTO DO BACKLOG -->
-                <div id="view-backlog" class="hidden p-8 h-full flex items-center justify-center text-center">
-                    <div>
-                        <i class="ph ph-list-numbers text-6xl text-slate-200 mb-4"></i>
-                        <h3 class="text-xl font-bold text-slate-600 italic">Espaço para Backlog </h3>
-                        <p class="text-slate-400 text-sm mt-1">Status: Em Desenvolvimento...</p>
+                <div id="view-backlog" class="hidden p-8 h-full overflow-y-auto">
+                    <div class="max-w-3x1 mx-auto">
+                        <!-- Cabeçalho do Backlog-->
+                        <div class="flex items-center jsutify-between mb-6">
+                            <div>
+                                <h2 class="text-x1 font-bold text-slate-800">Backlog</h2>
+                                <p class=""text-sm text-slate-400 mt-1">Gerencie suas tarefas futuras aqui</p>
+                            </div>
+                            <button id="add-backlog-task"
+                                class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-bold rounded-xl hover:bg-blue-700 transition-all">
+                                <i class="ph ph-plus"></i> Nova tarefa
+                            </button>
+                        </div>
+                        <!-- Lista de Tarefas do Backlog -->
+                        <div id="backlog-list" class="space-y-4">
+                            <!-- Os itens serão inseridos aquie pelo javasscipt-->
                     </div>
+                    <!-- Mensagem quando vazio-->
+                    <p id="backlog-empty" class="text-slate-400 text-sm text-center">
+                        Nenhuma tarefa no backlog.
+                    </p>
                 </div>
-
             </div>
         </main>
     </div>
