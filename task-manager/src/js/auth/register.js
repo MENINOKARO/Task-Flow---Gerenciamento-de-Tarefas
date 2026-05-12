@@ -1,4 +1,4 @@
-import { showMessage } from "./global.js";
+import { showMessage } from "../utils/messages.js";
 
 document.querySelector("form").addEventListener("submit", function(event){
     event.preventDefault();

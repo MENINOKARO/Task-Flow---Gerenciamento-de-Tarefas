@@ -1,4 +1,4 @@
-import { showMessage } from "./global.js";
+import { showMessage } from "../utils/messages.js";
 
 const msgFeedback = document.querySelector("#msg-feedback");
 

@@ -108,6 +108,7 @@
             <div id="main-content" class="flex-1 overflow-hidden relative">
                 <!-- AREA DE DESENVOLVIMENTO DO KANBAN -->
                 <div id="view-kanban" class="p-8 h-full overflow-x-auto">
+                    
                     <div class="flex gap-6 h-full items-start">
                         <div
                             class="flex flex-col min-w-[320px] w-[320px] bg-slate-100/50 border border-slate-200/60 rounded-2xl p-3">
@@ -191,6 +192,9 @@
                         <option value="Média">Média</option>
                         <option value="Alta">Alta</option>
                     </select>
+
+                    <input type="date" id="task-date"
+                        class="w-full p-2.5 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20" />
                     <div class="flex gap-3">
                         <button type="button" id="cancel-task"
                             class="flex-1 py-2 font-bold text-slate-500 bg-slate-100 rounded-xl">Cancelar</button>
@@ -202,8 +206,9 @@
         </div>
     </div>
 
-    <script src="../src/scripts/navigation.js"></script>
-    <script src="../src/scripts/dashboard.js"></script>
+   
+    <script type="module" src="../src/js/app/navigation.js"></script>
+    <script type="module" src="../src/js/dashboard/dashboard.js"></script>
 </body>
 
 </html>
