@@ -1,7 +1,7 @@
 const priorityOrder = {
-    "Alta": 3,
+    "Alta": 1,
     "Média": 2,
-    "Baixa": 1
+    "Baixa": 3
 };
 
 export function sortColumn(column) {
@@ -14,25 +14,23 @@ export function sortColumn(column) {
 
         const priorityA =
             a.querySelector(".priority-tag")
-                .textContent
-                .trim();
+                ?.textContent
+                ?.trim() || "Baixa";
 
         const priorityB =
             b.querySelector(".priority-tag")
-                .textContent
-                .trim();
+                ?.textContent
+                ?.trim() || "Baixa";
 
         return (
-            priorityOrder[priorityA] -
-            priorityOrder[priorityB]
+            (priorityOrder[priorityA] || 999) -
+            (priorityOrder[priorityB] || 999)
         );
 
     });
 
     cards.forEach(card => {
-
         column.appendChild(card);
-
     });
 
 }

@@ -22,9 +22,11 @@ import { toggleModal } from "./modal.js";
 import { sortColumn } from "./sort.js";
 
 export function setupEvents(createCard) {
+
   // SUBMIT
 
   taskForm.addEventListener("submit", (e) => {
+
     e.preventDefault();
 
     const title = taskTitle.value;
@@ -35,26 +37,43 @@ export function setupEvents(createCard) {
 
     const dueDate = taskDate.value;
 
+    // EDIT TASK
+
     if (editingCard) {
+
       const id = editingCard.dataset.id;
 
       const parentColumn = editingCard.parentElement;
 
+      const updatedCard = createCard(
+        title,
+        desc,
+        priority,
+        dueDate,
+        id
+      );
+
       editingCard.replaceWith(updatedCard);
 
       sortColumn(parentColumn);
 
-      const updatedCard = createCard(title, desc, priority, dueDate, id);
+    }
 
-      editingCard.replaceWith(updatedCard);
+    // CREATE TASK
 
-      sortColumn(parentColumn);
-    } else {
-      const newCard = createCard(title, desc, priority, dueDate);
+    else {
+
+      const newCard = createCard(
+        title,
+        desc,
+        priority,
+        dueDate
+      );
 
       columns.todo.appendChild(newCard);
 
       sortColumn(columns.todo);
+
     }
 
     updateCounts();
@@ -62,35 +81,57 @@ export function setupEvents(createCard) {
     saveTasks();
 
     toggleModal();
+
   });
 
   // OPEN MODAL
 
   if (addTaskBtn) {
-    addTaskBtn.addEventListener("click", () => toggleModal(false));
+
+    addTaskBtn.addEventListener("click", () => {
+
+      toggleModal(false);
+
+    });
+
   }
 
   // CLOSE MODAL
 
   if (closeModalBtn) {
-    closeModalBtn.addEventListener("click", () => toggleModal());
+
+    closeModalBtn.addEventListener("click", () => {
+
+      toggleModal();
+
+    });
+
   }
 
   // CANCEL
 
   if (cancelModalBtn) {
+
     cancelModalBtn.addEventListener("click", (e) => {
+
       e.preventDefault();
 
       toggleModal();
+
     });
+
   }
 
   // CLICK OUTSIDE
 
   modal.addEventListener("click", (e) => {
+
     if (e.target === modal) {
+
       toggleModal();
+
     }
+
   });
+
 }
