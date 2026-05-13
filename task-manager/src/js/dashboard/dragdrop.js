@@ -9,31 +9,27 @@ import { saveTasks } from "./storage.js";
 import { sortColumn } from "./sort.js";
 
 export function setupDragAndDrop() {
+  Object.values(columns).forEach((column) => {
+    if (!column) return;
 
-    Object.values(columns).forEach(column => {
+    Sortable.create(column, {
+      group: "kanban",
 
-        if (!column) return;
+      animation: 200,
 
-        Sortable.create(column, {
+      ghostClass: "opacity-50",
 
-            group: "kanban",
+      dragClass: "rotate-2",
 
-            animation: 200,
+      onEnd: (evt) => {
+        sortColumn(evt.to);
 
-            ghostClass: "opacity-50",
+        sortColumn(evt.from);
 
-            dragClass: "rotate-2",
+        updateCounts();
 
-            onEnd: () => {
-
-                updateCounts();
-
-                saveTasks();
-
-            }
-
-        });
-
+        saveTasks();
+      },
     });
-
+  });
 }
