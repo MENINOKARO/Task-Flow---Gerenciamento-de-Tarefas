@@ -1,42 +1,48 @@
 import { showMessage } from "../utils/messages.js";
 
-document.querySelector("form").addEventListener("submit", function(event){
-    event.preventDefault();
+document.addEventListener("DOMContentLoaded", () => {
+    const form = document.querySelector("form");
 
-    const username = document.querySelector("input[type='text']").value.trim();
-    const email = document.querySelector("input[type='email']").value.trim();
-    const password = document.querySelector("input[type='password']").value.trim();
-
-    const userList = JSON.parse(localStorage.getItem("users")) || [];
-
-    if (!username || !email || !password) {
-        showMessage("#msg-feedback", "Preencha todos os campos!", "error");
+    if (!form) {
+        console.error("Formulário não encontrado! Verifique se a tag <form> existe no HTML.");
         return;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    form.addEventListener("submit", function(event) {
+        event.preventDefault();
 
-    if (!emailRegex.test(email)) {
-        showMessage("#msg-feedback", "Por favor, insira um e-mail válido!", "error");
-        return;
-    }
+        // Seletores baseados na ordem dos inputs do seu HTML
+        const username = form.querySelector("input[type='text']").value.trim();
+        const email = form.querySelector("input[type='email']").value.trim();
+        const password = form.querySelector("input[type='password']").value.trim();
 
-    const userExists = userList.some(user => user.email === email);
+        if (!username || !email || !password) {
+            showMessage("#msg-feedback", "Preencha todos os campos!", "error");
+            return;
+        }
 
-    if (userExists) {
-        showMessage("#msg-feedback", "Este e-mail já está cadastrado!", "error");
-        return;
-    }
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            showMessage("#msg-feedback", "Por favor, insira um e-mail válido!", "error");
+            return;
+        }
 
-    const newUser = { username, email, password };
+        const userList = JSON.parse(localStorage.getItem("users")) || [];
+        const userExists = userList.some(user => user.email === email);
 
-    userList.push(newUser);
+        if (userExists) {
+            showMessage("#msg-feedback", "Este e-mail já está cadastrado!", "error");
+            return;
+        }
 
-    localStorage.setItem("users", JSON.stringify(userList));
+        // Salvar usuário
+        userList.push({ username, email, password });
+        localStorage.setItem("users", JSON.stringify(userList));
 
-    showMessage("#msg-feedback", "Sucesso! Criando sua conta...", "success");
+        showMessage("#msg-feedback", "Sucesso! Criando sua conta...", "success");
 
-    setTimeout(() => {
-        window.location.href = "login.html";
-    }, 2000);
+        setTimeout(() => {
+            window.location.href = "login.html";
+        }, 2000);
+    });
 });
