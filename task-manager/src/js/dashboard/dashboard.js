@@ -14,6 +14,8 @@ import { updateCounts } from "./counters.js";
 
 import { sortColumn } from "./sort.js";
 
+import { setupBacklog } from "./backlog.js";
+
 document.addEventListener("DOMContentLoaded", () => {
   function loadTasks() {
     const tasks = getTasks();
@@ -48,4 +50,6 @@ document.addEventListener("DOMContentLoaded", () => {
   setupEvents(createCard);
 
   loadTasks();
+  
+  setupBacklog();
 });

@@ -51,11 +51,11 @@
 <body class="bg-[#F8FAFC] text-slate-800 antialiased">
 
     <div class="flex h-screen overflow-hidden">
+        <!-- BARRA LATERAL (SIDEBAR) -->
         <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between z-20 shrink-0">
             <div>
                 <div class="p-6 flex items-center gap-3">
-                    <div
-                        class="bg-blue-600 text-white p-2 rounded-lg flex items-center justify-center shadow-lg shadow-blue-200">
+                    <div class="bg-blue-600 text-white p-2 rounded-lg flex items-center justify-center shadow-lg shadow-blue-200">
                         <i class="ph ph-chart-bar text-xl"></i>
                     </div>
                     <span class="text-xl font-bold tracking-tight text-blue-900">TaskFlow</span>
@@ -87,7 +87,9 @@
             </div>
         </aside>
 
+        <!-- CONTEÚDO PRINCIPAL -->
         <main class="flex-1 flex flex-col h-full overflow-hidden">
+            <!-- CABEÇALHO -->
             <header class="flex items-center justify-between px-8 py-4 bg-white border-b border-slate-200 z-10">
                 <div class="flex items-center gap-4">
                     <h1 class="text-sm font-bold text-slate-400 uppercase tracking-widest">Workspace</h1>
@@ -100,76 +102,103 @@
                         <input type="text" id="search-input" placeholder="Buscar tarefas..."
                             class="pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm w-64 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
                     </div>
-                    <button class="p-2 text-slate-500 hover:bg-slate-50 rounded-lg"><i
-                            class="ph ph-bell text-xl"></i></button>
+                    <button class="p-2 text-slate-500 hover:bg-slate-50 rounded-lg">
+                        <i class="ph ph-bell text-xl"></i>
+                    </button>
                 </div>
             </header>
 
+            <!-- ÁREA DINÂMICA DE VIEWS -->
             <div id="main-content" class="flex-1 overflow-hidden relative">
-                <!-- AREA DE DESENVOLVIMENTO DO KANBAN -->
+                
+                <!-- 1. VIEW DO KANBAN -->
                 <div id="view-kanban" class="p-8 h-full overflow-x-auto">
-                    
                     <div class="flex gap-6 h-full items-start">
-                        <div
-                            class="flex flex-col min-w-[320px] w-[320px] bg-slate-100/50 border border-slate-200/60 rounded-2xl p-3">
+                        <!-- Coluna: A Fazer -->
+                        <div class="flex flex-col min-w-[320px] w-[320px] bg-slate-100/50 border border-slate-200/60 rounded-2xl p-3">
                             <div class="flex items-center justify-between mb-4 px-2">
                                 <div class="flex items-center gap-2">
                                     <h3 class="text-xs font-bold uppercase text-slate-500 tracking-wider">A fazer</h3>
-                                    <span id="count-todo"
-                                        class="bg-white border border-slate-200 text-[10px] font-bold px-2 py-0.5 rounded-md text-slate-400">0</span>
+                                    <span id="count-todo" class="bg-white border border-slate-200 text-[10px] font-bold px-2 py-0.5 rounded-md text-slate-400">0</span>
                                 </div>
-
-                                <button id="add-task"
-                                    class="flex items-center justify-center w-7 h-7 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white rounded-lg transition-all duration-200 active:scale-95 group">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        viewBox="0 0 256 256" class="transition-transform group-hover:rotate-90">
-                                        <path
-                                            d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z">
-                                        </path>
+                                <button id="add-task" class="flex items-center justify-center w-7 h-7 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white rounded-lg transition-all duration-200 active:scale-95 group">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256" class="transition-transform group-hover:rotate-90">
+                                        <path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1 Cerros,128Z"></path>
                                     </svg>
                                 </button>
                             </div>
-
-                            <div id="todo" class="kanban-column flex flex-col gap-3 min-h-[100px] overflow-y-auto pr-1">
-                            </div>
+                            <div id="todo" class="kanban-column flex flex-col gap-3 min-h-[100px] overflow-y-auto pr-1"></div>
                         </div>
-                        <div
-                            class="flex flex-col min-w-[320px] w-[320px] bg-blue-50/30 border border-blue-100 rounded-2xl p-3">
+
+                        <!-- Coluna: Em Progresso -->
+                        <div class="flex flex-col min-w-[320px] w-[320px] bg-blue-50/30 border border-blue-100 rounded-2xl p-3">
                             <div class="flex items-center justify-between mb-4 px-2">
                                 <div class="flex items-center gap-2">
                                     <h3 class="text-xs font-bold uppercase text-blue-600">Em progresso</h3>
-                                    <span id="count-doing"
-                                        class="bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-md">0</span>
+                                    <span id="count-doing" class="bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-md">0</span>
                                 </div>
                             </div>
                             <div id="doing" class="kanban-column flex flex-col gap-3 overflow-y-auto"></div>
                         </div>
 
-                        <div
-                            class="flex flex-col min-w-[320px] w-[320px] bg-emerald-50/20 border border-emerald-100 rounded-2xl p-3">
+                        <!-- Coluna: Concluído -->
+                        <div class="flex flex-col min-w-[320px] w-[320px] bg-emerald-50/20 border border-emerald-100 rounded-2xl p-3">
                             <div class="flex items-center gap-2 mb-4 px-2">
                                 <h3 class="text-xs font-bold uppercase text-emerald-600">Concluído</h3>
-                                <span id="count-done"
-                                    class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-md">0</span>
+                                <span id="count-done" class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-md">0</span>
                             </div>
                             <div id="done" class="kanban-column flex flex-col gap-3 overflow-y-auto"></div>
                         </div>
                     </div>
                 </div>
-                <!-- AREA DE DESENVOLVIMENTO DO DASHBOARD -->
+
+                <!-- 2. VIEW DO DASHBOARD -->
                 <div id="view-dashboard" class="hidden p-8 h-full flex items-center justify-center text-center">
                     <div>
                         <i class="ph ph-chart-line-up text-6xl text-slate-200 mb-4"></i>
-                        <h3 class="text-xl font-bold text-slate-600 italic">Espaço para Dashboard </h3>
+                        <h3 class="text-xl font-bold text-slate-600 italic">Espaço para Dashboard</h3>
                         <p class="text-slate-400 text-sm mt-1">Status: Em Desenvolvimento...</p>
                     </div>
                 </div>
-                <!-- AREA DE DESENVOLVIMENTO DO BACKLOG -->
-                <div id="view-backlog" class="hidden p-8 h-full flex items-center justify-center text-center">
-                    <div>
-                        <i class="ph ph-list-numbers text-6xl text-slate-200 mb-4"></i>
-                        <h3 class="text-xl font-bold text-slate-600 italic">Espaço para Backlog </h3>
-                        <p class="text-slate-400 text-sm mt-1">Status: Em Desenvolvimento...</p>
+
+                <!-- 3. VIEW DO BACKLOG -->
+                <div id="view-backlog" class="hidden p-8 h-full overflow-y-auto">
+                    <div class="max-w-4xl mx-auto">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center gap-3">
+                                <h2 class="text-lg font-bold text-blue-950">Backlog de Produto</h2>
+                                <span id="backlog-count" class="bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-md">0</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="relative">
+                                    <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                    <input type="text" id="backlog-search" placeholder="Buscar no backlog..."
+                                        class="pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm w-56 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                                </div>
+                                <button id="add-backlog-task"
+                                    class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-bold rounded-xl hover:bg-blue-700 transition-all active:scale-95">
+                                    <i class="ph ph-plus text-base"></i> Novo item
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+                            <div class="flex items-center gap-4 px-5 py-2.5 bg-slate-50 border-b border-slate-200">
+                                <span class="text-[10px] font-bold uppercase text-slate-400 w-6">#</span>
+                                <span class="text-[10px] font-bold uppercase text-slate-400 flex-1">Título</span>
+                                <span class="text-[10px] font-bold uppercase text-slate-400 w-16">Prioridade</span>
+                                <span class="text-[10px] font-bold uppercase text-slate-400 w-28">Prazo</span>
+                                <span class="text-[10px] font-bold uppercase text-slate-400 w-20">Ações</span>
+                            </div>
+
+                            <div id="backlog-list"></div>
+
+                            <div id="backlog-empty" class="flex flex-col items-center justify-center py-16 text-center">
+                                <i class="ph ph-tray text-5xl text-slate-200 mb-3"></i>
+                                <p class="text-sm font-semibold text-slate-400">Nenhum item no backlog</p>
+                                <p class="text-xs text-slate-300 mt-1">Clique em "Novo item" para começar</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -177,8 +206,9 @@
         </main>
     </div>
 
+    <!-- MODAL DO KANBAN -->
     <div id="modal-overlay"
-        class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
         <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl animate-modal overflow-hidden">
             <div class="p-6">
                 <h3 class="text-lg font-bold mb-4">Gerenciar Tarefa</h3>
@@ -206,7 +236,37 @@
         </div>
     </div>
 
-   
+    <!-- MODAL DO BACKLOG -->
+    <div id="backlog-modal-overlay"
+        class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl animate-modal overflow-hidden">
+            <div class="p-6">
+                <h3 id="backlog-modal-title" class="text-lg font-bold mb-4">Novo Item do Backlog</h3>
+                <form id="backlog-form" class="space-y-4">
+                    <input type="hidden" id="backlog-task-id">
+                    <input type="text" id="backlog-task-title" required placeholder="Título"
+                        class="w-full p-2.5 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20">
+                    <textarea id="backlog-task-desc" placeholder="Descrição"
+                        class="w-full p-2.5 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20"></textarea>
+                    <select id="backlog-task-priority" class="w-full p-2.5 bg-slate-50 border rounded-xl outline-none">
+                        <option value="Baixa">Baixa</option>
+                        <option value="Média">Média</option>
+                        <option value="Alta">Alta</option>
+                    </select>
+                    <input type="date" id="backlog-task-date"
+                        class="w-full p-2.5 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20" />
+                    <div class="flex gap-3">
+                        <button type="button" id="backlog-cancel"
+                            class="flex-1 py-2 font-bold text-slate-500 bg-slate-100 rounded-xl">Cancelar</button>
+                        <button type="submit"
+                            class="flex-1 py-2 font-bold text-white bg-blue-600 rounded-xl">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
     <script type="module" src="../src/js/app/navigation.js"></script>
     <script type="module" src="../src/js/dashboard/dashboard.js"></script>
 </body>
