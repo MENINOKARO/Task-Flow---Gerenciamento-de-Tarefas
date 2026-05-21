@@ -23,66 +23,7 @@ import { sortColumn } from "./sort.js";
 
 export function setupEvents(createCard) {
 
-  // SUBMIT
-
-  taskForm.addEventListener("submit", (e) => {
-
-    e.preventDefault();
-
-    const title = taskTitle.value;
-
-    const desc = taskDesc.value;
-
-    const priority = taskPriority.value;
-
-    const dueDate = taskDate.value;
-
-    // EDIT TASK
-
-    if (editingCard) {
-
-      const id = editingCard.dataset.id;
-
-      const parentColumn = editingCard.parentElement;
-
-      const updatedCard = createCard(
-        title,
-        desc,
-        priority,
-        dueDate,
-        id
-      );
-
-      editingCard.replaceWith(updatedCard);
-
-      sortColumn(parentColumn);
-
-    }
-
-    // CREATE TASK
-
-    else {
-
-      const newCard = createCard(
-        title,
-        desc,
-        priority,
-        dueDate
-      );
-
-      columns.todo.appendChild(newCard);
-
-      sortColumn(columns.todo);
-
-    }
-
-    updateCounts();
-
-    saveTasks();
-
-    toggleModal();
-
-  });
+  
 
   // OPEN MODAL
 
