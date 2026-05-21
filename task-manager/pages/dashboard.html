@@ -40,10 +40,16 @@
                 </div>
 
                 <nav class="space-y-1 px-4">
-                    <a href="/pages/projects.html"
-                        class="flex items-center gap-3 w-full px-4 py-2.5 text-sm font-semibold rounded-xl text-slate-500 hover:bg-slate-50 transition-all">
-                        <i class="ph ph-folder-notch text-lg"></i> Meus Projetos
-                    </a>
+
+                    <button id="btn-dashboard"
+                        class="nav-btn flex items-center gap-3 w-full px-4 py-2.5 text-sm font-semibold rounded-xl text-slate-500 hover:bg-slate-50 transition-all">
+
+                        <i class="ph ph-squares-four text-lg"></i>
+
+                        Dashboard
+
+                    </button>
+
                     <button id="btn-kanban"
                         class="nav-btn flex items-center gap-3 w-full px-4 py-2.5 text-sm font-bold rounded-xl bg-blue-50 text-blue-600 border-l-4 border-blue-600 shadow-sm">
 
@@ -64,17 +70,50 @@
 
                 </nav>
             </div>
-            <div class="p-4 border-t border-slate-100">
-                <div class="flex items-center gap-3 p-2">
-                    <img id="userAvatar" src="https://ui-avatars.com/api/?name=User" class="w-9 h-9 rounded-full" />
-                    <div class="text-left flex-1">
-                        <p id="userNameDisplay" class="text-xs font-bold text-slate-900">Usuário</p>
-                        <p id="userEmailDisplay" class="text-[10px] text-slate-500">email</p>
+
+            <div class="p-4 border-t border-slate-100 relative">
+
+                <div id="userMenuBtn"
+                    class="flex items-center justify-between p-2 cursor-pointer hover:bg-slate-50 rounded-xl transition-all">
+
+                    <div class="flex items-center gap-3">
+
+                        <img id="userAvatar" src="" class="w-9 h-9 rounded-full bg-slate-200" alt="Avatar" />
+
+                        <div class="text-left">
+
+                            <p id="userNameDisplay" class="text-xs font-bold text-slate-900 line-clamp-1">
+
+                                Carregando...
+
+                            </p>
+
+                            <p id="userEmailDisplay" class="text-[10px] text-slate-500 line-clamp-1">
+
+                                email@exemplo.com
+
+                            </p>
+
+                        </div>
                     </div>
-                    <button id="logoutBtn"
-                        class="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all">
-                        <i class="ph ph-sign-out text-sm"></i>
+
+                    <button id="logoutBtn" class="text-slate-400 hover:text-red-500 transition-colors">
+
+                        <i class="ph ph-sign-out text-lg"></i>
+
                     </button>
+
+                </div>
+
+                <div id="userDropdown"
+                    class="hidden absolute bottom-16 left-4 w-48 bg-white border border-slate-100 rounded-lg shadow-xl z-50">
+
+                    <button class="w-full text-left px-4 py-2 text-xs text-slate-600 hover:bg-slate-50">
+
+                        Minha Conta
+
+                    </button>
+
                 </div>
             </div>
         </aside>
@@ -205,7 +244,25 @@
                     </div>
 
                 </div>
-                <!-- AREA DE DESENVOLVIMENTO DO BACKLOG -->
+
+                <div id="view-dashboard" class="hidden p-8 h-full flex items-center justify-center text-center">
+
+                    <div>
+
+                        <i class="ph ph-chart-line-up text-6xl text-slate-200 mb-4"></i>
+
+                        <h3 class="text-xl font-bold text-slate-600 italic">
+                            Espaço para Dashboard
+                        </h3>
+
+                        <p class="text-slate-400 text-sm mt-1">
+                            Status: Em Desenvolvimento...
+                        </p>
+
+                    </div>
+
+                </div>
+
                 <div id="view-backlog" class="hidden p-8 h-full overflow-y-auto">
                 </div>
 
