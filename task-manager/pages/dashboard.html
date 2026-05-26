@@ -1,222 +1,365 @@
 <!DOCTYPE html>
+
 <html lang="pt-br">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TaskFlow - Kanban Premium</title>
+
+
     <link rel="stylesheet" href="/src/css/style.css">
+
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+
 </head>
 
 <body class="bg-[#F8FAFC] text-slate-800 antialiased">
 
+
     <div class="flex h-screen overflow-hidden">
-        <aside id="sidebar"
-            class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between z-20 shrink-0 relative">
+
+        <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between z-20 shrink-0">
+
             <div>
-                <div class="p-6 flex items-center h-[73px] border-b border-slate-50 overflow-hidden select-none">
-                    <div class="flex items-center gap-3 w-full min-w-max">
-                        <div
-                            class="bg-blue-600 text-white p-2 rounded-lg flex items-center justify-center shadow-lg shadow-blue-200 shrink-0 w-9 h-9">
-                            <i class="ph ph-chart-bar text-xl"></i>
-                        </div>
-                        <span class="text-xl font-bold tracking-tight text-blue-900 sidebar-text">TaskFlow</span>
+
+                <div class="p-6 flex items-center gap-3">
+
+                    <div
+                        class="bg-blue-600 text-white p-2 rounded-lg flex items-center justify-center shadow-lg shadow-blue-200">
+
+                        <i class="ph ph-chart-bar text-xl"></i>
+
                     </div>
+
+                    <span class="text-xl font-bold tracking-tight text-blue-900">
+                        TaskFlow
+                    </span>
+
                 </div>
 
-                <nav class="space-y-1 px-4 mt-4">
+                <nav class="space-y-1 px-4">
+
                     <button id="btn-dashboard"
                         class="nav-btn flex items-center gap-3 w-full px-4 py-2.5 text-sm font-semibold rounded-xl text-slate-500 hover:bg-slate-50 transition-all">
-                        <i class="ph ph-squares-four text-lg shrink-0"></i>
-                        <span class="sidebar-text">Dashboard</span>
+
+                        <i class="ph ph-squares-four text-lg"></i>
+
+                        Dashboard
+
                     </button>
+
                     <button id="btn-kanban"
                         class="nav-btn flex items-center gap-3 w-full px-4 py-2.5 text-sm font-bold rounded-xl bg-blue-50 text-blue-600 border-l-4 border-blue-600 shadow-sm">
-                        <i class="ph ph-kanban text-lg shrink-0"></i>
-                        <span class="sidebar-text">Kanban</span>
+
+                        <i class="ph ph-kanban text-lg"></i>
+
+                        Kanban
+
                     </button>
+
                     <button id="btn-backlog"
                         class="nav-btn flex items-center gap-3 w-full px-4 py-2.5 text-sm font-semibold rounded-xl text-slate-500 hover:bg-slate-50 transition-all">
-                        <i class="ph ph-list-dashes text-lg shrink-0"></i>
-                        <span class="sidebar-text">Backlog</span>
+
+                        <i class="ph ph-list-dashes text-lg"></i>
+
+                        Backlog
+
                     </button>
+
                 </nav>
             </div>
 
-            <div class="p-4 border-t border-slate-100 relative overflow-hidden">
+            <div class="p-4 border-t border-slate-100 relative">
+
                 <div id="userMenuBtn"
-                    class="flex items-center justify-between p-2 cursor-pointer hover:bg-slate-50 rounded-xl transition-all w-full min-w-max">
+                    class="flex items-center justify-between p-2 cursor-pointer hover:bg-slate-50 rounded-xl transition-all">
+
                     <div class="flex items-center gap-3">
-                        <img id="userAvatar" src=""
-                            class="w-9 h-9 rounded-full bg-slate-200 shrink-0 hover:ring-2 hover:ring-blue-500/20 transition-all"
-                            alt="Avatar" />
-                        <div class="text-left sidebar-text">
-                            <p id="userNameDisplay" class="text-xs font-bold text-slate-900 line-clamp-1">Vitor
-                                Vitoriano</p>
-                            <p id="userEmailDisplay" class="text-[10px] text-slate-500 line-clamp-1">vitor@gmail.com</p>
+
+                        <img id="userAvatar" src="" class="w-9 h-9 rounded-full bg-slate-200" alt="Avatar" />
+
+                        <div class="text-left">
+
+                            <p id="userNameDisplay" class="text-xs font-bold text-slate-900 line-clamp-1">
+
+                                Carregando...
+
+                            </p>
+
+                            <p id="userEmailDisplay" class="text-[10px] text-slate-500 line-clamp-1">
+
+                                email@exemplo.com
+
+                            </p>
+
                         </div>
                     </div>
 
-                    <button id="logoutBtn"
-                        class="text-slate-400 hover:text-red-500 transition-colors p-1 rounded-md hover:bg-slate-100 cursor-pointer shrink-0 ml-2 sidebar-text">
+                    <button id="logoutBtn" class="text-slate-400 hover:text-red-500 transition-colors">
+
                         <i class="ph ph-sign-out text-lg"></i>
+
                     </button>
+
+                </div>
+
+                <div id="userDropdown"
+                    class="hidden absolute bottom-16 left-4 w-48 bg-white border border-slate-100 rounded-lg shadow-xl z-50">
+
+                    <button class="w-full text-left px-4 py-2 text-xs text-slate-600 hover:bg-slate-50">
+
+                        Minha Conta
+
+                    </button>
+
                 </div>
             </div>
-
-            <button id="btn-collapse" class="notion-sidebar-trigger">
-                <div class="trigger-line"></div>
-                <div class="trigger-button">
-                    <i class="ph ph-caret-left-bold"></i>
-                </div>
-            </button>
         </aside>
 
         <main class="flex-1 flex flex-col h-full overflow-hidden">
+
             <header class="flex items-center justify-between px-8 py-4 bg-white border-b border-slate-200 z-10">
+
                 <div class="flex items-center gap-4">
-                    <h1 class="text-sm font-bold text-slate-400 uppercase tracking-widest">Workspace</h1>
+
+                    <h1 class="text-sm font-bold text-slate-400 uppercase tracking-widest">
+                        Workspace
+                    </h1>
+
                     <span class="text-slate-300">/</span>
-                    <h2 id="current-page-title" class="text-lg font-bold text-blue-950">Sprint Kanban</h2>
+
+                    <h2 id="current-page-title" class="text-lg font-bold text-blue-950">
+
+                        Sprint Kanban
+
+                    </h2>
+
                 </div>
+
                 <div class="flex items-center gap-4">
+
                     <div class="relative group">
+
                         <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+
                         <input type="text" id="search-input" placeholder="Buscar tarefas..."
                             class="pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm w-64 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+
                     </div>
+
                     <button class="p-2 text-slate-500 hover:bg-slate-50 rounded-lg">
+
                         <i class="ph ph-bell text-xl"></i>
+
                     </button>
+
                 </div>
             </header>
 
             <div id="main-content" class="flex-1 overflow-hidden relative">
+
                 <div id="view-kanban" class="p-8 h-full overflow-x-auto">
+
                     <div class="flex gap-6 h-full items-start">
 
                         <div
                             class="flex flex-col min-w-[320px] w-[320px] bg-slate-100/50 border border-slate-200/60 rounded-2xl p-3">
+
                             <div class="flex items-center justify-between mb-4 px-2">
+
                                 <div class="flex items-center gap-2">
-                                    <h3 class="text-xs font-bold uppercase text-slate-500 tracking-wider">A fazer</h3>
+
+                                    <h3 class="text-xs font-bold uppercase text-slate-500 tracking-wider">
+                                        A fazer
+                                    </h3>
+
                                     <span id="count-todo"
-                                        class="bg-white border border-slate-200 text-[10px] font-bold px-2 py-0.5 rounded-md text-slate-400">0</span>
+                                        class="bg-white border border-slate-200 text-[10px] font-bold px-2 py-0.5 rounded-md text-slate-400">
+
+                                        0
+
+                                    </span>
+
                                 </div>
-                            </div>
+
+                                </div>
+
                             <div id="todo" class="kanban-column flex flex-col gap-3 min-h-[100px] overflow-y-auto pr-1">
                             </div>
+
                         </div>
 
                         <div
                             class="flex flex-col min-w-[320px] w-[320px] bg-blue-50/30 border border-blue-100 rounded-2xl p-3">
+
                             <div class="flex items-center justify-between mb-4 px-2">
+
                                 <div class="flex items-center gap-2">
-                                    <h3 class="text-xs font-bold uppercase text-blue-600">Em progresso</h3>
+
+                                    <h3 class="text-xs font-bold uppercase text-blue-600">
+                                        Em progresso
+                                    </h3>
+
                                     <span id="count-doing"
-                                        class="bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-md">0</span>
-                                </div>
-                            </div>
-                            <div id="doing" class="kanban-column flex flex-col gap-3 overflow-y-auto"></div>
-                        </div>
+                                        class="bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-md">
 
-                        <div
-                            class="flex flex-col min-w-[320px] w-[320px] bg-purple-50/30 border border-purple-100 rounded-2xl p-3">
-                            <div class="flex items-center justify-between mb-4 px-2">
-                                <div class="flex items-center gap-2">
-                                    <h3 class="text-xs font-bold uppercase text-purple-600">Em Teste</h3>
-                                    <span id="count-testing"
-                                        class="bg-purple-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-md">0</span>
-                                </div>
-                            </div>
-                            <div id="testing" class="kanban-column flex flex-col gap-3 overflow-y-auto"></div>
-                        </div>
+                                        0
 
-                        <div
-                            class="flex flex-col min-w-[320px] w-[320px] bg-amber-50/30 border border-amber-100 rounded-2xl p-3">
-                            <div class="flex items-center justify-between mb-4 px-2">
-                                <div class="flex items-center gap-2">
-                                    <h3 class="text-xs font-bold uppercase text-amber-600">Revisão</h3>
-                                    <span id="count-review"
-                                        class="bg-amber-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-md">0</span>
+                                    </span>
+
                                 </div>
+
                             </div>
-                            <div id="review" class="kanban-column flex flex-col gap-3 overflow-y-auto"></div>
+
+                            <div id="doing" class="kanban-column flex flex-col gap-3 overflow-y-auto">
+                            </div>
+
                         </div>
 
                         <div
                             class="flex flex-col min-w-[320px] w-[320px] bg-emerald-50/20 border border-emerald-100 rounded-2xl p-3">
-                            <div class="flex items-center justify-between mb-4 px-2">
-                                <div class="flex items-center gap-2">
-                                    <h3 class="text-xs font-bold uppercase text-emerald-600">Concluído</h3>
-                                    <span id="count-done"
-                                        class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-md">0</span>
-                                </div>
+
+                            <div class="flex items-center gap-2 mb-4 px-2">
+
+                                <h3 class="text-xs font-bold uppercase text-emerald-600">
+                                    Concluído
+                                </h3>
+
+                                <span id="count-done"
+                                    class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-md">
+
+                                    0
+
+                                </span>
+
                             </div>
-                            <div id="done" class="kanban-column flex flex-col gap-3 overflow-y-auto"></div>
+
+                            <div id="done" class="kanban-column flex flex-col gap-3 overflow-y-auto">
+                            </div>
+
                         </div>
 
                     </div>
+
                 </div>
 
                 <div id="view-dashboard" class="hidden p-8 h-full flex items-center justify-center text-center">
+
                     <div>
+
                         <i class="ph ph-chart-line-up text-6xl text-slate-200 mb-4"></i>
-                        <h3 class="text-xl font-bold text-slate-600 italic">Espaço para Dashboard</h3>
-                        <p class="text-slate-400 text-sm mt-1">Status: Em Desenvolvimento...</p>
+
+                        <h3 class="text-xl font-bold text-slate-600 italic">
+                            Espaço para Dashboard
+                        </h3>
+
+                        <p class="text-slate-400 text-sm mt-1">
+                            Status: Em Desenvolvimento...
+                        </p>
+
                     </div>
+
                 </div>
 
-                <div id="view-backlog" class="hidden p-8 h-full overflow-y-auto"></div>
+                <div id="view-backlog" class="hidden p-8 h-full overflow-y-auto">
+                </div>
+
             </div>
+
         </main>
     </div>
 
     <div id="modal-overlay"
         class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+
         <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl animate-modal overflow-hidden">
+
             <div class="p-6">
+
                 <div class="flex items-center justify-between mb-6">
+
                     <div>
-                        <h3 class="text-xl font-bold text-slate-800">Nova Tarefa</h3>
-                        <p class="text-sm text-slate-400 mt-1">Adicione uma tarefa ao backlog</p>
+
+                        <h3 class="text-xl font-bold text-slate-800">
+                            Nova Tarefa
+                        </h3>
+
+                        <p class="text-sm text-slate-400 mt-1">
+                            Adicione uma tarefa ao backlog
+                        </p>
+
                     </div>
+
                 </div>
 
                 <form id="task-form" class="space-y-4">
+
                     <input type="text" id="task-title" required placeholder="Título da tarefa"
                         class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+
                     <textarea id="task-desc" placeholder="Descrição da tarefa" rows="4"
                         class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"></textarea>
+
                     <select id="task-priority"
                         class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
-                        <option value="high">🔴 Alta Prioridade</option>
-                        <option value="medium">🟡 Média Prioridade</option>
-                        <option value="low">🟢 Baixa Prioridade</option>
+
+                        <option value="high">
+                            🔴 Alta Prioridade
+                        </option>
+
+                        <option value="medium">
+                            🟡 Média Prioridade
+                        </option>
+
+                        <option value="low">
+                            🟢 Baixa Prioridade
+                        </option>
+
                     </select>
+
                     <input type="text" id="task-responsible" placeholder="Responsável"
                         class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+
                     <select id="task-sprint"
-                        class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"></select>
+                        class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+                    </select>
+
                     <input type="date" id="task-date"
                         class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
 
                     <div class="flex gap-3 pt-2">
+
                         <button type="button" id="cancel-task"
-                            class="flex-1 py-3 font-semibold text-slate-500 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all">Cancelar</button>
+                            class="flex-1 py-3 font-semibold text-slate-500 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all">
+
+                            Cancelar
+
+                        </button>
+
                         <button type="submit"
-                            class="flex-1 py-3 font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-all shadow-lg shadow-blue-200">Criar
-                            tarefa</button>
+                            class="flex-1 py-3 font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-all shadow-lg shadow-blue-200">
+
+                            Criar tarefa
+
+                        </button>
+
                     </div>
+
                 </form>
+
             </div>
+
         </div>
+
     </div>
 
     <script type="module" src="/src/js/app/main.js"></script>
     <script type="module" src="/src/js/app/navigation.js"></script>
     <script type="module" src="/src/js/dashboard/dashboard.js"></script>
+    
+
 </body>
 
 </html>
