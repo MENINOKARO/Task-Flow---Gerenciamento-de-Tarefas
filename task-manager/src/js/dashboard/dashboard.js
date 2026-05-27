@@ -6,8 +6,13 @@ import { setupDragAndDrop } from "./dragdrop.js";
 import { setupEvents } from "./events.js";
 import { updateCounts } from "./counters.js";
 import { sortColumn } from "./sort.js";
+// 👇 IMPORTA OS MÉTODOS DE PROJETO (HU - DEMANDA)
+import { initProjects, getActiveProjectId } from "./projects.js";
 
 document.addEventListener("DOMContentLoaded", () => {
+
+  // 📁 Inicializa os listeners, seletores e travas de visualização do projeto
+  initProjects();
 
   function loadTasks() {
     // 👇 EVITA DUPLICAÇÃO: Limpa o HTML interno de cada coluna antes de renderizar
@@ -15,13 +20,23 @@ document.addEventListener("DOMContentLoaded", () => {
     if (columns.doing) columns.doing.innerHTML = "";
     if (columns.done) columns.done.innerHTML = "";
 
+    // Pega o ID do projeto que está ativo na Sidebar no momento
+    const activeProjectId = getActiveProjectId();
+
+    // Se não houver nenhum projeto ativo, nem precisamos renderizar ou filtrar tarefas
+    if (!activeProjectId) {
+      updateCounts();
+      return;
+    }
+
     const tasks = getTasks();
 
-    // =========================
-    // PEGAR SOMENTE TASKS DO KANBAN
-    // =========================
-    const kanbanTasks = tasks.filter(task =>
-      task.status !== "backlog"
+    // 👇 MODIFICADO PARA COMPATIBILIDADE DA HU:
+    // Filtra para pegar somente tasks do Kanban E que pertencem ao projeto ativo atual
+    const kanbanTasks = tasks.filter(task => 
+      task.status !== "backlog" && 
+      task.column !== "backlog" &&
+      task.projectId === activeProjectId // Vinculo direto da tarefa com o projeto
     );
 
     kanbanTasks.forEach((task) => {
@@ -68,7 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupDragAndDrop();
   setupEvents(createCard);
   
-  // Executa a carga inicial das tarefas persistidas
+  // Executa a carga inicial das tarefas persistidas filtradas por projeto
   loadTasks();
 
   // Torna a função acessível globalmente caso o roteador do seu projeto precise forçar re-renderizações remotas
