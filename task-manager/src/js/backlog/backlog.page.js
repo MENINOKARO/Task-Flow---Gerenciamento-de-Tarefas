@@ -5,11 +5,13 @@ import { sendSprintToKanban, createTask } from "./backlog.service.js";
 export function renderBacklogPage() {
   const app = document.querySelector("#view-backlog");
   
-  const currentProject = JSON.parse(localStorage.getItem("currentProject")) || { id: "default" };
+  // 👇 INTEGRADO COM A NOSSA HU: Pega o ID do projeto ativo atual
+  const activeProjectId = localStorage.getItem('taskflow_active_project_id') || "";
   const sprints = getSprints();
   const tasks = getTasks();
 
-  const projectSprints = sprints.filter(sprint => sprint.projectId === currentProject.id);
+  // Filtra apenas as sprints do projeto ativo atual
+  const projectSprints = sprints.filter(sprint => sprint.projectId === activeProjectId);
 
   app.innerHTML = `
       <div class="space-y-6">
@@ -29,6 +31,7 @@ export function renderBacklogPage() {
         <div class="space-y-6">
           ${projectSprints.length > 0 
             ? projectSprints.map(sprint => {
+                // Filtra as tasks pertencentes à sprint
                 const sprintTasks = tasks.filter(task => task.sprintId === sprint.id);
                 return SprintCard(sprint, sprintTasks);
               }).join("")
@@ -200,15 +203,13 @@ function setupEvents() {
   document.querySelector("#close-detail-modal")?.addEventListener("click", closeDetailModal);
   document.querySelector("#close-detail-modal-btn")?.addEventListener("click", closeDetailModal);
 
-  // Garante a detecção da instância correta do SweetAlert2 no escopo
   const sweetAlertInstance = window.Swal || Swal;
 
-  // 1. GERENCIADOR DINÂMICO DE CLIQUES GLOBAL (DELEGAÇÃO DE EVENTOS)
   const app = document.querySelector("#view-backlog");
   if (app) {
     app.onclick = function(e) {
       
-      // 💥 EVENTO: EXCLUIR TAREFA DO BACKLOG
+      // EXCLUIR TAREFA DO BACKLOG
       const deleteGenericTaskBtn = e.target.closest(".delete-task-btn");
       if (deleteGenericTaskBtn) {
         e.stopPropagation();
@@ -233,7 +234,7 @@ function setupEvents() {
         return;
       }
 
-      // 💥 EVENTO: EXCLUIR SPRINT INTEIRA
+      // EXCLUIR SPRINT INTEIRA
       const deleteSprintBtn = e.target.closest(".delete-sprint-btn");
       if (deleteSprintBtn) {
         e.stopPropagation();
@@ -332,24 +333,30 @@ function setupEvents() {
     });
   });
 
-  // SPRINT FORM SUBMIT
+  // ABRIR FORM DE NOVA SPRINT
   document.querySelector("#add-sprint")?.addEventListener("click", () => {
     document.querySelector("#sprint-title-input").value = "";
     sprintModal.classList.remove("hidden");
   });
 
+  // 👇 MODIFICADO: SPRINT FORM SUBMIT (VÍNCULO COM O PROJETO ATIVO DA HU)
   if (sprintForm) {
     sprintForm.onsubmit = (e) => {
       e.preventDefault();
       const sprintName = document.querySelector("#sprint-title-input").value;
+      const activeProjectId = localStorage.getItem('taskflow_active_project_id') || "";
+
+      if (!activeProjectId) {
+        alert("Nenhum projeto ativo selecionado!");
+        return;
+      }
 
       if (sprintName.trim() !== "") {
-        const currentProject = JSON.parse(localStorage.getItem("currentProject")) || { id: "default" };
         const sprints = getSprints();
         
         const newSprint = {
           id: crypto.randomUUID(),
-          projectId: currentProject.id,
+          projectId: activeProjectId, // 👈 Injeta o projeto ativo correto aqui
           name: sprintName,
           goal: "Objetivo planejado."
         };
@@ -381,14 +388,19 @@ function setupEvents() {
     });
   });
 
-  // TAREFA FORM SUBMIT
+  // 👇 MODIFICADO: TAREFA FORM SUBMIT (VÍNCULO COM O PROJETO ATIVO DA HU)
   if (taskForm) {
     taskForm.onsubmit = (e) => {
       e.preventDefault();
       const tasks = getTasks();
       const editId = document.querySelector("#mvp-task-edit-id").value;
       const taskTitle = document.querySelector("#mvp-task-title").value;
-      const currentProject = JSON.parse(localStorage.getItem("currentProject")) || { id: "default" };
+      const activeProjectId = localStorage.getItem('taskflow_active_project_id') || "";
+
+      if (!activeProjectId) {
+        alert("Nenhum projeto ativo selecionado!");
+        return;
+      }
 
       if (taskTitle.trim() !== "") {
         if (editId) {
@@ -408,13 +420,15 @@ function setupEvents() {
           saveTasks(updatedTasks);
         } else {
           const taskData = {
-            projectId: currentProject.id,
+            projectId: activeProjectId, // 👈 Injeta o projeto ativo correto aqui
             sprintId: document.querySelector("#mvp-task-sprint-id").value,
             title: taskTitle,
             description: document.querySelector("#mvp-task-desc").value,
             responsible: document.querySelector("#mvp-task-responsible").value,
             priority: document.querySelector("#mvp-task-priority").value,
-            dueDate: document.querySelector("#mvp-task-date").value
+            dueDate: document.querySelector("#mvp-task-date").value,
+            column: "backlog", // Mantém estado inicial na coluna de backlog
+            status: "backlog"
           };
           createTask(taskData);
         }
