@@ -1,53 +1,43 @@
 @import "tailwindcss";
 
-/* BARRA DE ROLAGEM GLOBAL */
+/* BARRA DE ROLAGEM GLOBAL ORIGINAL */
 ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
 }
-
 ::-webkit-scrollbar-track {
     background: transparent;
 }
-
 ::-webkit-scrollbar-thumb {
     background: #cbd5e1;
     border-radius: 10px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
     background: #94a3b8;
 }
-
 #view-kanban::-webkit-scrollbar {
     height: 8px;
 }
 
-/* COMPORTAMENTO DO KANBAN */
+/* COMPORTAMENTO DO SEU KANBAN */
 .kanban-column {
     height: calc(100vh - 220px);
 }
 
-/* SIDEBAR NOTION MINIMALISTA */
+/* SEU SIDEBAR ORIGINAL */
 #sidebar {
     transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: visible !important;
 }
-
-/* Transição dos elementos da sidebar */
 .sidebar-text {
     transition: opacity 0.15s ease-in-out;
     opacity: 1;
 }
-
-/* Evita que qualquer elemento ocultado ocupe espaço invisível ou sofra esmagamento */
 .sidebar-text.hidden {
     opacity: 0 !important;
     display: none !important;
     pointer-events: none;
 }
-
-/* Container do Gatilho Invisível na Borda */
 .notion-sidebar-trigger {
     position: absolute;
     top: 0;
@@ -64,8 +54,6 @@
     outline: none;
     padding: 0;
 }
-
-/* Linha vertical que acende no hover */
 .trigger-line {
     position: absolute;
     top: 0;
@@ -75,8 +63,6 @@
     background-color: transparent;
     transition: background-color 0.2s ease;
 }
-
-/* Pequeno botão com a seta */
 .trigger-button {
     width: 20px;
     height: 32px;
@@ -92,27 +78,38 @@
     transform: scale(0.9);
     transition: opacity 0.15s ease, transform 0.15s ease, color 0.2s;
 }
-
-/* Efeito Hover na área da borda */
 .notion-sidebar-trigger:hover .trigger-line {
     background-color: #3b82f6;
 }
-
 .notion-sidebar-trigger:hover .trigger-button {
     opacity: 1;
     transform: scale(1);
 }
-
 .trigger-button:hover {
     color: #2563eb !important;
     background-color: #f8fafc;
 }
 
-/* CONFIGURAÇÃO EXTRA DE ANIMAÇÃO DE MODAL */
+/* ANIMAÇÃO DA CAIXA AO ENTRAR */
 @keyframes modalIn {
-    from { opacity: 0; transform: scale(0.95); }
+    from { opacity: 0; transform: scale(0.97); }
     to { opacity: 1; transform: scale(1); }
 }
 .animate-modal {
-    animation: modalIn 0.2s ease-out;
+    animation: modalIn 0.18s ease-out;
+}
+
+/* ADAPTAÇÃO EXCLUSIVA PARA QUE O OVERLAY SIGA O BACKLOG DAS IMAGENS */
+#modal {
+    display: none;
+}
+#modal:not(.hidden) {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(15, 23, 42, 0.4) !important; /* Esmaecido suave */
+    backdrop-filter: blur(4px) !important;               /* Blur da imagem */
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    z-index: 60;
 }

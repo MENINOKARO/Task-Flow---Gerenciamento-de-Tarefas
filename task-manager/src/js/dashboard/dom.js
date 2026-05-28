@@ -15,6 +15,7 @@ export const searchInput = document.getElementById("search-input");
 export const taskTitle = document.getElementById("task-title");
 export const taskDesc = document.getElementById("task-desc");
 export const taskPriority = document.getElementById("task-priority");
+export const taskResponsible = document.getElementById("task-responsible");
 
 export const countTodo = document.getElementById("count-todo");
 export const countDoing = document.getElementById("count-doing");
