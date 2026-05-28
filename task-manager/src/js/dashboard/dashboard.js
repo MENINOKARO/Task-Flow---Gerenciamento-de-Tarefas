@@ -1,5 +1,5 @@
 import { columns } from "./dom.js";
-import { getTasks } from "./storage.js";
+import { getTasks } from "../backlog/backlog.storage.js";
 import { setupSearch } from "./search.js";
 import { createCard } from "./cards.js";
 import { setupDragAndDrop } from "./dragdrop.js";
@@ -18,8 +18,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // EVITA DUPLICAÇÃO: Limpa o HTML interno de cada uma das 5 colunas
     if (columns.todo) columns.todo.innerHTML = "";
     if (columns.doing) columns.doing.innerHTML = "";
-    if (columns.testing) columns.testing.innerHTML = "";
-    if (columns.review) columns.review.innerHTML = "";
     if (columns.done) columns.done.innerHTML = "";
 
     // Pega o ID do projeto que está ativo na Sidebar no momento
@@ -44,14 +42,12 @@ document.addEventListener("DOMContentLoaded", () => {
       // MODIFICADO: Agora passa o objeto 'task' completo com todas as propriedades
       const card = createCard(task);
 
-      // =====================================
-      // MAPEAR STATUS -> COLUNA (5 STATUSES)
-      // =====================================
+      // =========================
+      // MAPEAR STATUS -> COLUNA
+      // =========================
       const columnMap = {
         todo: columns.todo,
         doing: columns.doing,
-        testing: columns.testing,
-        review: columns.review,
         done: columns.done
       };
 
@@ -62,14 +58,18 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
+    // =========================
     // ORDENAR COLUNAS
+    // =========================
     Object.values(columns).forEach((column) => {
       if (column) {
         sortColumn(column);
       }
     });
 
+    // =========================
     // CONTADORES
+    // =========================
     updateCounts();
   }
 
@@ -80,6 +80,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // Executa a carga inicial das tarefas persistidas filtradas por projeto
   loadTasks();
 
-  // Torna a função acessível globalmente
+  // Torna a função acessível globalmente caso o roteador do seu projeto precise forçar re-renderizações remotas
   window.reloadKanbanDashboard = loadTasks;
 });

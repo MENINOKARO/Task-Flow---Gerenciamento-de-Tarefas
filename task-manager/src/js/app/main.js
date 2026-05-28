@@ -6,8 +6,6 @@ import {
 } from '../auth/session.js';
 
 import { initBacklogModal } from "../backlog/backlog.modal.js";
-// 👇 Importação do novo módulo de controle da sidebar
-import { setupSidebar } from "../dashboard/sidebar.js";
 
 // 1. Verifica segurança
 const usuario = checkAuth();
@@ -17,8 +15,6 @@ if (usuario) {
 
     initUserUI(usuario);
     initBacklogModal();
-    // 👇 Inicializa o recurso de colapsar/esticar a barra lateral
-    setupSidebar();
 
     // ========================================================
     // MOCK INTELIGENTE (Não sobrescreve mais seus dados no F5)

@@ -1,8 +1,6 @@
 export const columns = {
   todo: document.getElementById("todo"),
   doing: document.getElementById("doing"),
-  testing: document.getElementById("testing"),
-  review: document.getElementById("review"),
   done: document.getElementById("done"),
 };
 
