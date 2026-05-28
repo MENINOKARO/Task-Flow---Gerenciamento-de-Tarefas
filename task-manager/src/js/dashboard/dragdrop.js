@@ -1,7 +1,10 @@
 import Sortable from "sortablejs";
+
 import { columns } from "./dom.js";
+
 import { updateCounts } from "./counters.js";
-import { getTasks, saveTasks } from "../backlog/backlog.storage.js"; // Garanta que o caminho do seu storage está correto aqui
+import { getTasks, saveTasks } from "../backlog/backlog.storage.js";
+
 import { sortColumn } from "./sort.js";
 
 export function setupDragAndDrop() {
@@ -19,9 +22,13 @@ export function setupDragAndDrop() {
 
     Sortable.create(column, {
       group: "kanban",
+
       animation: 200,
+
       ghostClass: "opacity-50",
+
       dragClass: "rotate-2",
+
       onEnd: (evt) => {
         const cardElement = evt.item; // O elemento HTML do card que foi arrastado
         const taskId = cardElement.getAttribute("data-id") || cardElement.id; // Pega o ID da task guardado no HTML
@@ -43,7 +50,9 @@ export function setupDragAndDrop() {
 
         // Reordena visualmente, atualiza os contadores e renderiza as alterações
         sortColumn(evt.to);
+
         sortColumn(evt.from);
+
         updateCounts();
 
         // Se o seu sistema usa uma função global para recarregar o painel, chamamos ela aqui
