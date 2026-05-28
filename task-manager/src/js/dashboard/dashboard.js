@@ -44,6 +44,14 @@ document.addEventListener("DOMContentLoaded", () => {
       // MODIFICADO: Agora passa o objeto 'task' completo com todas as propriedades
       const card = createCard(task);
 
+      // MELHORIA SPRINT 3: Aplica o efeito visual de riscado caso a página seja recarregada e a task já esteja concluída
+      if (task.column === "done" || task.status === "done" || task.completedInSprint) {
+        const titleEl = card.querySelector("h4") || card.querySelector(".card-title") || card;
+        if (titleEl) {
+          titleEl.classList.add("line-through", "opacity-60");
+        }
+      }
+
       // =====================================
       // MAPEAR STATUS -> COLUNA (5 STATUSES)
       // =====================================

@@ -1,17 +1,16 @@
 import Sortable from "sortablejs";
 import { columns } from "./dom.js";
 import { updateCounts } from "./counters.js";
-import { getTasks, saveTasks } from "../backlog/backlog.storage.js"; // Garanta que o caminho do seu storage está correto aqui
+import { getTasks, saveTasks } from "../backlog/backlog.storage.js";
 import { sortColumn } from "./sort.js";
 
 export function setupDragAndDrop() {
-  // Captura todas as colunas possíveis dinamicamente do DOM para cobrir as novas colunas (A fazer, Em progresso, Teste, Revisão, Concluído)
   const allColumns = [
     columns.todo,
     columns.doing,
-    columns.done,
-    document.getElementById("testing"), // Adicionado dinamicamente caso não esteja no dom.columns
-    document.getElementById("review")   // Adicionado dinamicamente caso não esteja no dom.columns
+    columns.testing,
+    columns.review,
+    columns.done
   ];
 
   allColumns.forEach((column) => {
@@ -23,30 +22,42 @@ export function setupDragAndDrop() {
       ghostClass: "opacity-50",
       dragClass: "rotate-2",
       onEnd: (evt) => {
-        const cardElement = evt.item; // O elemento HTML do card que foi arrastado
-        const taskId = cardElement.getAttribute("data-id") || cardElement.id; // Pega o ID da task guardado no HTML
-        const targetColumnId = evt.to.id; // O ID da coluna onde o card caiu (ex: "todo", "doing", "testing", etc.)
+        const cardElement = evt.item;
+        const taskId = cardElement.getAttribute("data-id") || cardElement.id;
+        const targetColumnId = evt.to.id;
 
         if (taskId && targetColumnId) {
-          const tasks = getTasks(); // Busca a lista atual de tarefas do storage
+          const tasks = getTasks();
           const task = tasks.find(t => String(t.id) === String(taskId));
 
           if (task) {
-            // Atualiza tanto a propriedade 'column' quanto 'status' para garantir a compatibilidade
+            // Atualiza a posição atual da task
             task.column = targetColumnId;
             task.status = targetColumnId;
-            
-            // Força a gravação da lista atualizada com o novo status no LocalStorage
-            saveTasks(tasks); 
+
+            if (targetColumnId === "done") {
+              // Se caiu na última coluna, ativa os selos de controle
+              task.inSprint = true; // Mantém ativo para o Kanban listar
+              task.completedInSprint = true; // Selo de concluído para o Backlog ler
+              
+              // Adiciona um estilo visual de risco no título do card imediatamente na tela
+              const titleEl = cardElement.querySelector("h4") || cardElement.querySelector(".card-title") || cardElement;
+              if (titleEl) titleEl.classList.add("line-through", "opacity-60");
+            } else {
+              // Se foi tirado da coluna concluído e movido de volta para outra, remove os selos
+              task.completedInSprint = false;
+              const titleEl = cardElement.querySelector("h4") || cardElement.querySelector(".card-title") || cardElement;
+              if (titleEl) titleEl.classList.remove("line-through", "opacity-60");
+            }
+
+            saveTasks(tasks);
           }
         }
 
-        // Reordena visualmente, atualiza os contadores e renderiza as alterações
         sortColumn(evt.to);
         sortColumn(evt.from);
         updateCounts();
 
-        // Se o seu sistema usa uma função global para recarregar o painel, chamamos ela aqui
         if (window.reloadKanbanDashboard) {
           window.reloadKanbanDashboard();
         }

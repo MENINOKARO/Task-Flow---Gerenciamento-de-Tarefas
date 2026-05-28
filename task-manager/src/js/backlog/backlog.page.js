@@ -63,10 +63,38 @@ export function renderBacklogPage() {
             projectSprints.length > 0
               ? projectSprints
                   .map((sprint) => {
-                    const sprintTasks = tasks.filter(
-                      (task) => task.sprintId === sprint.id,
-                    );
-                    return SprintCard(sprint, sprintTasks);
+                    // MODIFICADO (SPRINT 3 - REGRA 1 E 2): Filtro inteligente para exibição de tarefas no Backlog
+                    const sprintTasks = tasks.filter((task) => {
+                      if (task.sprintId !== sprint.id) return false;
+                      
+                      // Se a tarefa ainda não foi enviada para o Kanban, ela fica no backlog
+                      if (!task.inSprint && !task.completedInSprint) return true;
+                      
+                      // REGRA 1: Se está no Kanban, continua aparecendo no backlog apenas se estiver na coluna inicial ("todo")
+                      if (task.inSprint && (task.column === "todo" || task.status === "todo")) return true;
+                      
+                      // REGRA 2: Se foi concluída no Kanban, mantém-se visível de volta no backlog
+                      if (task.completedInSprint) return true;
+
+                      // Se estiver no fluxo intermediário do Kanban (doing, testing, review), oculta do backlog temporariamente
+                      return false;
+                    });
+
+                    // MELHORIA DA SPRINT 3: Verifica se a sprint possui tarefas e se TODAS já foram dadas como concluídas
+                    const isSprintFinished = sprintTasks.length > 0 && sprintTasks.every(task => task.completedInSprint === true);
+
+                    // Retorna a estrutura injetando a tag visual caso a Sprint esteja finalizada
+                    return `
+                      <div class="relative group">
+                        ${isSprintFinished ? `
+                          <div class="absolute -top-3 right-4 z-10 flex items-center gap-1.5 bg-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
+                            <i class="ph ph-check-circle text-sm"></i>
+                            Sprint Concluída
+                          </div>
+                        ` : ''}
+                        ${SprintCard(sprint, sprintTasks)}
+                      </div>
+                    `;
                   })
                   .join("")
               : `<div class="text-center py-12 text-slate-400 border border-dashed border-slate-200 rounded-2xl">Nenhuma sprint criada. Clique em 'Nova Sprint' para começar.</div>`
@@ -554,7 +582,7 @@ function setupEvents() {
           if (sweetAlertInstance) {
             sweetAlertInstance.fire({
               title: "Sucesso!",
-              text: "Sprint alterada com sucesso.",
+              text: "Sprint altered com sucesso.",
               icon: "success",
               confirmButtonColor: "#1e293b",
             });

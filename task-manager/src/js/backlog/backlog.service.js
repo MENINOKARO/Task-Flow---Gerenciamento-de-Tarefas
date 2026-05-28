@@ -14,9 +14,12 @@ export function createTask(taskData) {
     priority: taskData.priority || "medium",
     responsible: taskData.responsible || "Sem responsável",
     status: TASK_STATUS.BACKLOG,
+    column: "backlog", // Mantém sincronizado com as colunas
     progress: 0,
     dueDate: taskData.dueDate || "",
-    createdAt: new Date().toISOString()
+    createdAt: new Date().toISOString(),
+    inSprint: false,            // Inicializa falso até ser enviado para a sprint
+    completedInSprint: false    // Inicializa sem o selo de concluído
   };
 
   tasks.push(newTask);
@@ -29,10 +32,14 @@ export function sendSprintToKanban(sprintId) {
   const tasks = getTasks();
 
   const updatedTasks = tasks.map(task => {
-    if (task.sprintId === sprintId && task.status === TASK_STATUS.BACKLOG) {
+    // Altera apenas as tarefas daquela sprint que ainda estão em backlog ou prontas para iniciar
+    if (task.sprintId === sprintId && (task.status === TASK_STATUS.BACKLOG || task.column === "backlog")) {
       return {
         ...task,
-        status: TASK_STATUS.TODO // Envia para o "A fazer" do Kanban
+        status: "todo",            // Envia para o "A fazer" do Kanban
+        column: "todo",            // Sincroniza a propriedade column utilizada pelo SortableJS
+        inSprint: true,            // REGRA 1: Sinaliza que a tarefa entrou na Sprint ativa
+        completedInSprint: false   // Garante que limpa o selo caso ela esteja sendo reiniciada
       };
     }
     return task;
