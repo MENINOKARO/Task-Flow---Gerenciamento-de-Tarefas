@@ -89,19 +89,11 @@
                     class="flex items-center justify-between p-2 cursor-pointer hover:bg-slate-50 rounded-xl transition-all">
 
                     <div class="flex items-center gap-3">
-
-                        <img id="userAvatar" src="" class="w-9 h-9 rounded-full bg-slate-200" alt="Avatar" />
-
-                        <div class="text-left">
-
-                            <p id="userNameDisplay" class="text-xs font-bold text-slate-900 line-clamp-1">
-                                Carregando...
-                            </p>
-
-                            <p id="userEmailDisplay" class="text-[10px] text-slate-500 line-clamp-1">
-                                email@exemplo.com
-                            </p>
-
+                        <img id="userAvatar" src=""
+                            class="w-9 h-9 rounded-full bg-slate-200 shrink-0 hover:ring-2 hover:ring-blue-500/20 transition-all" alt="Avatar" />
+                        <div class="text-left sidebar-text">
+                            <p id="userNameDisplay" class="text-xs font-bold text-slate-900 line-clamp-1">Vitor Vitoriano</p>
+                            <p id="userEmailDisplay" class="text-[10px] text-slate-500 line-clamp-1">vitor@gmail.com</p>
                         </div>
                     </div>
 
@@ -181,9 +173,7 @@
                 <div id="view-kanban" class="hidden p-8 h-full overflow-x-auto">
 
                     <div class="flex gap-6 h-full items-start">
-
                         <div class="flex flex-col min-w-[320px] w-[320px] bg-slate-100/50 border border-slate-200/60 rounded-2xl p-3">
-
                             <div class="flex items-center justify-between mb-4 px-2">
 
                                 <div class="flex items-center gap-2">
@@ -200,56 +190,46 @@
                                 </div>
 
                             </div>
-
-                            <div id="todo" class="kanban-column flex flex-col gap-3 min-h-[100px] overflow-y-auto pr-1">
-                            </div>
-
+                            <div id="todo" class="kanban-column flex flex-col gap-3 min-h-[100px] overflow-y-auto pr-1"></div>
                         </div>
 
                         <div class="flex flex-col min-w-[320px] w-[320px] bg-blue-50/30 border border-blue-100 rounded-2xl p-3">
-
                             <div class="flex items-center justify-between mb-4 px-2">
 
                                 <div class="flex items-center gap-2">
-
-                                    <h3 class="text-xs font-bold uppercase text-blue-600">
-                                        Em progresso
-                                    </h3>
-
-                                    <span id="count-doing"
-                                        class="bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-md">
-                                        0
-                                    </span>
-
+                                    <h3 class="text-xs font-bold uppercase text-blue-600">Em progresso</h3>
+                                    <span id="count-doing" class="bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-md">0</span>
                                 </div>
 
                             </div>
 
-                            <div id="doing" class="kanban-column flex flex-col gap-3 overflow-y-auto">
+                        <div class="flex flex-col min-w-[320px] w-[320px] bg-purple-50/30 border border-purple-100 rounded-2xl p-3">
+                            <div class="flex items-center justify-between mb-4 px-2">
+                                <div class="flex items-center gap-2">
+                                    <h3 class="text-xs font-bold uppercase text-purple-600">Em Teste</h3>
+                                    <span id="count-testing" class="bg-purple-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-md">0</span>
+                                </div>
                             </div>
 
                         </div>
+
+                        <div class="flex flex-col min-w-[320px] w-[320px] bg-amber-50/30 border border-amber-100 rounded-2xl p-3">
+                            <div class="flex items-center justify-between mb-4 px-2">
+                                <div class="flex items-center gap-2">
+                                    <h3 class="text-xs font-bold uppercase text-amber-600">Revisão</h3>
+                                    <span id="count-review" class="bg-amber-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-md">0</span>
+                                </div>
+                            </div>
 
                         <div class="flex flex-col min-w-[320px] w-[320px] bg-emerald-50/20 border border-emerald-100 rounded-2xl p-3">
-
-                            <div class="flex items-center gap-2 mb-4 px-2">
-
-                                <h3 class="text-xs font-bold uppercase text-emerald-600">
-                                    Concluído
-                                </h3>
-
-                                <span id="count-done"
-                                    class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-md">
-                                    0
-                                </span>
-
-                            </div>
-
-                            <div id="done" class="kanban-column flex flex-col gap-3 overflow-y-auto">
+                            <div class="flex items-center justify-between mb-4 px-2">
+                                <div class="flex items-center gap-2">
+                                    <h3 class="text-xs font-bold uppercase text-emerald-600">Concluído</h3>
+                                    <span id="count-done" class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-md">0</span>
+                                </div>
                             </div>
 
                         </div>
-
                     </div>
 
                 </div>
@@ -280,74 +260,61 @@
         </main>
     </div>
 
-    <div id="modal-overlay"
-        class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-
-        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl animate-modal overflow-hidden">
-
-            <div class="p-6">
-
-                <div class="flex items-center justify-between mb-6">
-
+    <div id="task-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-xl rounded-2xl shadow-2xl animate-modal overflow-hidden">
+            <div class="p-7">
+                <div class="mb-6">
+                    <h3 id="modal-title-text" class="text-xl font-bold text-slate-800">Editar Tarefa</h3>
+                    <p id="modal-desc-text" class="text-xs text-slate-400 mt-1">Insira ou modifique os detalhes da tarefa no backlog.</p>
+                </div>
+                
+                <form id="task-form" class="space-y-4">
                     <div>
-
-                        <h3 class="text-xl font-bold text-slate-800">
-                            Nova Tarefa
-                        </h3>
-
-                        <p class="text-sm text-slate-400 mt-1">
-                            Adicione uma tarefa ao backlog
-                        </p>
-
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 px-0.5">Título da Tarefa *</label>
+                        <input type="text" id="task-title" required placeholder="Digite o título da tarefa..."
+                            class="w-full px-3.5 py-2.5 text-sm bg-white border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-700 font-medium">
                     </div>
 
-                </div>
-                <form id="task-form" class="space-y-4">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 px-0.5">Descrição</label>
+                        <textarea id="task-desc" placeholder="Adicione uma descrição detalhada..." rows="4"
+                            class="w-full px-3.5 py-2.5 text-sm bg-white border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-600 resize-none leading-relaxed"></textarea>
+                    </div>
 
-                    <input type="text" id="task-title" required placeholder="Título da tarefa"
-                        class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 px-0.5">Responsável *</label>
+                            <select id="task-responsible"
+                                class="w-full px-3.5 py-2.5 text-sm bg-white border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-700 font-medium cursor-pointer">
+                                <option value="">Selecione um responsável...</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 px-0.5">Prioridade *</label>
+                            <select id="task-priority"
+                                class="w-full px-3.5 py-2.5 text-sm bg-white border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-700 font-semibold appearance-none cursor-pointer">
+                                <option value="high">Alta</option>
+                                <option value="medium">Média</option>
+                                <option value="low">Baixa</option>
+                            </select>
+                        </div>
+                    </div>
 
-                    <textarea id="task-desc" placeholder="Descrição da tarefa" rows="4"
-                        class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"></textarea>
+                    <div class="hidden">
+                        <select id="task-sprint"></select>
+                    </div>
 
-                    <select id="task-priority"
-                        class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 px-0.5">Prazo de Entrega *</label>
+                        <input type="text" id="task-date" placeholder="Ex: 30 de jun"
+                            class="w-full px-3.5 py-2.5 text-sm bg-white border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-700 font-medium">
+                    </div>
 
-                        <option value="high">
-                            🔴 Alta Prioridade
-                        </option>
-
-                        <option value="medium">
-                            🟡 Média Prioridade
-                        </option>
-
-                        <option value="low">
-                            🟢 Baixa Prioridade
-                        </option>
-
-                    </select>
-
-                    <input type="text" id="task-responsible" placeholder="Responsável"
-                        class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
-
-                    <select id="task-sprint"
-                        class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
-                    </select>
-
-                    <input type="date" id="task-date"
-                        class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
-                    <div class="flex gap-3 pt-2">
-
+                    <div class="flex justify-end gap-3 pt-4 border-t border-slate-50 mt-2">
                         <button type="button" id="cancel-task"
-                            class="flex-1 py-3 font-semibold text-slate-500 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all">
-                            Cancelar
-                        </button>
-
+                            class="px-5 py-2.5 text-xs font-bold text-slate-500 bg-transparent hover:bg-slate-50 rounded-xl transition-all border border-transparent">Cancelar</button>
                         <button type="submit"
-                            class="flex-1 py-3 font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-all shadow-lg shadow-blue-200">
-                            Criar tarefa
-                        </button>
-
+                            class="px-5 py-2.5 text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-xl transition-all shadow-sm">Salvar Alterações</button>
                     </div>
 
                 </form>
@@ -358,8 +325,7 @@
 
     </div>
 
-    <div id="project-modal-overlay"
-        class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div id="project-modal-overlay" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl animate-modal overflow-hidden">
             <div class="p-6">
                 <div class="flex items-center justify-between mb-6">

@@ -1,14 +1,34 @@
 import { TaskRow } from "./TaskRow.js";
 
 export function SprintCard(sprint, tasks) {
+  // Função interna para formatar a data de AAAA-MM-DD para DD/MM/AAAA
+  const formatDate = (dateString) => {
+    if (!dateString) return "Não informada";
+    const [year, month, day] = dateString.split("-");
+    return `${day}/${month}/${year}`;
+  };
+
+  const startDateFormatted = formatDate(sprint.startDate);
+  const endDateFormatted = formatDate(sprint.endDate);
+
   return `
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8">
       
       <div class="p-6 border-b border-slate-100 flex items-center justify-between">
         <div class="flex items-center gap-3">
            <i class="ph ph-hash text-slate-400 font-bold"></i>
-           <h2 class="text-lg font-bold text-slate-800">${sprint.name}</h2>
            
+           <div>
+             <h2 class="text-lg font-bold text-slate-800 leading-tight">${sprint.name}</h2>
+             <span class="text-[11px] text-slate-400 font-medium block mt-0.5">
+               Duração: ${startDateFormatted} até ${endDateFormatted}
+             </span>
+           </div>
+           
+           <button data-sprint-id="${sprint.id}" class="edit-sprint-btn text-slate-400 hover:text-slate-600 transition p-1 ml-2" title="Editar Sprint">
+             <i class="ph ph-pencil text-base"></i>
+           </button>
+
            <button data-sprint-id="${sprint.id}" class="delete-sprint-btn text-slate-400 hover:text-red-600 transition p-1 ml-1" title="Excluir Sprint">
              <i class="ph ph-trash text-base"></i>
            </button>
