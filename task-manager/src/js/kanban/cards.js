@@ -1,6 +1,11 @@
+
 import { openDashboardEditModal } from "./events.js";
+
+
 import { editingCard } from "./state.js";
-import { saveTasks, getTasks } from "./storage.js";
+
+
+import { saveTasks, getTasks } from "../utils/storage.js";
 
 export function createCard(task) {
   const card = document.createElement("div");

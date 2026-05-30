@@ -2,7 +2,7 @@ import {
     modal,
     taskForm,
     taskTitle
-} from "./dom.js";
+} from "../utils/dom.js";
 
 export function toggleModal() {
     if (!modal) return;

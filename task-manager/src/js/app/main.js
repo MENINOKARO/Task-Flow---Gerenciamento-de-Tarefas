@@ -6,8 +6,11 @@ import {
 } from '../auth/session.js';
 
 import { initBacklogModal } from "../backlog/backlog.modal.js";
-// 👇 Importação do novo módulo de controle da sidebar
-import { setupSidebar } from "../dashboard/sidebar.js";
+import { setupSidebar } from "./sidebar.js";
+import { initKanban } from "../kanban/kanban.js";
+
+// INTEGRALIZAÇÃO HU04: Importação do renderizador de métricas globais
+import { initDashboardMetrics } from "../dashboard/dashboard.js";
 
 // 1. Verifica segurança
 const usuario = checkAuth();
@@ -17,14 +20,13 @@ if (usuario) {
 
     initUserUI(usuario);
     initBacklogModal();
-    // 👇 Inicializa o recurso de colapsar/esticar a barra lateral
     setupSidebar();
+    initKanban();
 
-    // ========================================================
-    // MOCK INTELIGENTE (Não sobrescreve mais seus dados no F5)
-    // ========================================================
+    // INTEGRALIZAÇÃO HU04: Carrega e injeta o balanço de dados inicial no primeiro boot
+    initDashboardMetrics();
 
-    // Garante o projeto ativo
+
     if (!localStorage.getItem("currentProject")) {
         localStorage.setItem(
             "currentProject",
@@ -32,7 +34,6 @@ if (usuario) {
         );
     }
 
-    // 🔥 SÓ CRIA AS SPRINTS FAKES SE NÃO EXISTIR NENHUMA SALVA
     if (!localStorage.getItem("sprints")) {
         localStorage.setItem(
             "sprints",
@@ -48,7 +49,6 @@ if (usuario) {
         );
     }
 
-    // 🔥 SÓ CRIA AS TASKS FAKES SE NÃO EXISTIR NENHUMA SALVA (Sincronizado com a chave certa)
     if (!localStorage.getItem("taskflow_tasks")) {
         localStorage.setItem(
             "taskflow_tasks",
@@ -60,8 +60,9 @@ if (usuario) {
                     title: "CRUD completo de tarefas",
                     priority: "high",
                     responsible: "JS",
+                    column: "todo", // Sincronizado para bater com as colunas do storage
                     status: "backlog",
-                    dueDate: "12 mai"
+                    dueDate: "2026-05-12"
                 },
                 {
                     id: crypto.randomUUID(),
@@ -70,8 +71,9 @@ if (usuario) {
                     title: "Quadro Kanban com drag & drop",
                     priority: "medium",
                     responsible: "MC",
+                    column: "doing", // Sincronizado para bater com as colunas do storage
                     status: "backlog",
-                    dueDate: "15 mai"
+                    dueDate: "2026-05-15"
                 },
                 {
                     id: crypto.randomUUID(),
@@ -80,10 +82,14 @@ if (usuario) {
                     title: "Filtros e busca de tarefas",
                     priority: "low",
                     responsible: "PS",
+                    column: "done", // Sincronizado para bater com as colunas do storage
                     status: "backlog",
-                    dueDate: "18 mai"
+                    dueDate: "2026-05-18"
                 }
             ])
         );
+        
+        // Recarrega as métricas após injetar os mocks iniciais caso o localStorage estivesse vazio
+        initDashboardMetrics();
     }
 }
