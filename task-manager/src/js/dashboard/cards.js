@@ -7,9 +7,6 @@ export function createCard(task) {
   card.className = "bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition cursor-grab active:cursor-grabbing space-y-3 relative group";
   card.draggable = true;
   card.dataset.id = task.id;
-  
-  // NOVO: Adiciona o atributo data-priority para o sort.js ler instantaneamente
-  card.dataset.priority = (task.priority || "medium").toLowerCase();
 
   const priorityColors = {
     high: "bg-red-50 text-red-600",
@@ -33,6 +30,7 @@ export function createCard(task) {
   const badgeClass = priorityColors[currentPriority] || "bg-slate-50 text-slate-600";
   const labelText = priorityLabel[currentPriority] || "MÉDIA";
 
+  // Gera as iniciais do responsável
   const obterIniciais = (nome) => {
     if (!nome) return "??";
     const partes = nome.trim().split(" ");
@@ -44,10 +42,10 @@ export function createCard(task) {
 
   const iniciaisAvatar = obterIniciais(task.responsible);
 
-  // HTML DO CARD: Adicionada a classe 'priority-tag' para manter compatibilidade com buscas por seletores
+  // HTML DO CARD: Apenas o avatar redondo, sem o nome do lado corrido
   card.innerHTML = `
     <div class="flex justify-between items-start gap-2">
-      <span class="priority-tag text-xs font-bold px-2 py-0.5 rounded-md tracking-wider ${badgeClass}">
+      <span class="text-xs font-bold px-2 py-0.5 rounded-md tracking-wider ${badgeClass}">
         ${labelText}
       </span>
       <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -80,6 +78,9 @@ export function createCard(task) {
     </div>
   `;
 
+  // -------------------------------------------------------------
+  // CLIQUE NO CARD INTEIRO - COMENTÁRIOS E USUÁRIO LOGADO CORRETO
+  // -------------------------------------------------------------
   card.addEventListener("click", (e) => {
     if (e.target.closest('.btn-edit-card') || e.target.closest('.btn-delete-card') || e.target.closest('button')) {
       return; 
@@ -88,11 +89,13 @@ export function createCard(task) {
     const oldModal = document.getElementById("mvp-detail-modal-overlay-kanban");
     if (oldModal) oldModal.remove();
 
+    // 1. Definições de Prioridade e ID de exibição
     const priorityLabels = { high: "ALTA", medium: "MÉDIA", low: "BAIXA", alta: "ALTA", media: "MÉDIA", baixa: "BAIXA" };
     const currentPriority = (task.priority || task.prioridade || "medium").toLowerCase();
     const priorityText = priorityLabels[currentPriority] || "MÉDIA";
     const taskDisplayId = task.taskCode || task.formattedId || task.code || (task.id ? task.id.substring(0, 5).toUpperCase() : 'TF-1');
 
+    // 2. BUSCA O USUÁRIO LOGADO REAL DA CHAVE 'usuarioLogado'
     const loggedUserRaw = localStorage.getItem('usuarioLogado');
     let currentUsername = "Anônimo";
 
@@ -105,6 +108,7 @@ export function createCard(task) {
       }
     }
 
+    // 3. Estrutura do Modal Gêmeo com Seção de Comentários Integrada
     const modalHTML = `
       <div id="mvp-detail-modal-overlay-kanban" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-[70]">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 border border-slate-100 space-y-4 max-h-[90vh] overflow-y-auto">
@@ -307,6 +311,9 @@ export function createCard(task) {
     createdModal?.addEventListener("click", (event) => { if (event.target === createdModal) destroyModal(); });
   });
 
+  // -----------------------------------------------------------------
+  // CLIQUE NO BOTÃO EDITAR - VERSÃO CORRIGIDA (FORMATO DATA/CALENDÁRIO)
+  // -----------------------------------------------------------------
   const editBtn = card.querySelector(".btn-edit-card");
   if (editBtn) {
     editBtn.addEventListener("click", (e) => {
@@ -319,8 +326,10 @@ export function createCard(task) {
         return;
       }
 
+      // 1. Abre o modal
       modalElement.classList.remove("hidden");
 
+      // 2. Preenche os campos (Garante compatibilidade de nomes de variáveis)
       const titleInput = document.getElementById("task-title");
       if (titleInput) titleInput.value = task.title || task.nome || "";
 
@@ -333,12 +342,16 @@ export function createCard(task) {
       const dateInput = document.getElementById("task-date");
       if (dateInput) {
         let dateVal = task.dueDate || task.prazo || task.date || "";
+        // Se a data estiver salva em formato brasileiro (DD/MM/AAAA), inverte para hífens (AAAA-MM-DD) para carregar no calendário
         if (dateVal.includes("/")) {
           dateVal = dateVal.split("/").reverse().join("-");
         }
         dateInput.value = dateVal;
       }
 
+      // -------------------------------------------------------------
+      // FUNCIONALIDADE DO BOTÃO CANCELAR
+      // -------------------------------------------------------------
       const cancelBtn = modalElement.querySelector(".btn-secondary") || document.getElementById("cancel-edit-btn") || modalElement.querySelector("button[type='button']");
       if (cancelBtn) {
         cancelBtn.addEventListener("click", () => {
@@ -346,31 +359,36 @@ export function createCard(task) {
         }, { once: true });
       }
 
+      // -------------------------------------------------------------
+      // FUNCIONALIDADE DO BOTÃO SALVAR ALTERAÇÕES
+      // -------------------------------------------------------------
       const formElement = document.getElementById("task-form") || modalElement.querySelector("form");
       if (formElement) {
         formElement.onsubmit = (event) => {
           event.preventDefault();
 
+          // Pega o valor em formato AAAA-MM-DD vindo do input date
           const rawDate = dateInput ? dateInput.value : "";
           
+          // Reverte de volta para o padrão brasileiro DD/MM/AAAA
           const formattedDate = rawDate && rawDate.includes("-")
             ? rawDate.split("-").reverse().join("/")
             : rawDate;
 
+          // Atualiza o objeto 'task' local com os novos valores digitados pelo usuário
           task.title = titleInput ? titleInput.value : task.title;
           task.description = descInput ? descInput.value : task.description;
           task.priority = prioritySelect ? prioritySelect.value : task.priority;
           task.dueDate = formattedDate; 
 
-          // NOVO: Atualiza dinamicamente o dataset para manter a ordenação reativa correta se o usuário alterar a prioridade na edição
-          card.dataset.priority = task.priority.toLowerCase();
-
+          // Atualiza visualmente o título e descrição do card na tela na mesma hora
           const cardTitleElement = card.querySelector("h4") || card.querySelector(".card-title") || card.querySelector("strong");
           if (cardTitleElement) cardTitleElement.innerText = task.title;
           
           const cardDescElement = card.querySelector("p") || card.querySelector(".card-desc");
           if (cardDescElement) cardDescElement.innerText = task.description;
 
+          // Atualiza a exibição da data visual no cantinho inferior do card do Kanban
           const cardDateContainer = card.querySelector(".ph-calendar-blank")?.parentElement;
           if (cardDateContainer) {
             if (formattedDate) {
@@ -380,6 +398,7 @@ export function createCard(task) {
             }
           }
 
+          // Grava a atualização de forma definitiva no LocalStorage global das Tarefas
           try {
             const allTasks = getTasks();
             const index = allTasks.findIndex(t => t.id === task.id);
@@ -388,16 +407,19 @@ export function createCard(task) {
               saveTasks(allTasks);
             }
           } catch (storageErr) {
-            console.error("Erro ao salvar a tarefa updated no storage:", storageErr);
+            console.error("Erro ao salvar a tarefa atualizada no storage:", storageErr);
           }
 
+          // Fecha o modal após salvar e limpa estados se necessário
           modalElement.classList.add("hidden");
           if (window.reloadKanbanDashboard) window.reloadKanbanDashboard();
+          console.log("Alterações salvas com sucesso para a tarefa:", task);
         };
       }
     });
   }
 
+  // BOTAO DELETAR
   const deleteBtn = card.querySelector(".btn-delete-card");
   if (deleteBtn) {
     deleteBtn.addEventListener("click", (e) => {
@@ -427,7 +449,7 @@ export function createCard(task) {
           ejecutarExclusao();
         }
       }
-    });
+    });2
   }
 
   card.addEventListener("dragstart", () => card.classList.add("opacity-40"));
