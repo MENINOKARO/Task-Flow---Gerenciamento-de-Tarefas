@@ -1,5 +1,5 @@
 import Sortable from "sortablejs";
-import { columns } from "./dom.js";
+import { columns } from "../utils/dom.js";
 import { updateCounts } from "./counters.js";
 import { getTasks, saveTasks } from "../backlog/backlog.storage.js";
 import { sortColumn } from "./sort.js";

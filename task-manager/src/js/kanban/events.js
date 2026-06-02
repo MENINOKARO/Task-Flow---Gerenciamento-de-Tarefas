@@ -8,9 +8,12 @@ import {
   taskDesc,
   taskPriority,
   taskDate
-} from "./dom.js";
+} from "../utils/dom.js";
 
-import { editingCard } from "./state.js";
+// CORREÇÃO: Como o state.js está na mesma pasta local (kanban/), usamos "./"
+import { editingCard } from "./state.js"; 
+
+// CORREÇÃO: Como o toggleModal está dentro do modal.js na mesma pasta local, usamos "./"
 import { toggleModal } from "./modal.js";
 
 // Busca a lista de usuários cadastrados no sistema

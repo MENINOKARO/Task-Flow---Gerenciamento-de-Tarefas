@@ -1,11 +1,11 @@
-import {
+import { 
     columns,
-    countTodo,
-    countDoing,
-    countTesting,
-    countReview,
-    countDone
-} from "./dom.js";
+    countTodo, 
+    countDoing, 
+    countTesting, 
+    countReview, 
+    countDone 
+} from "../utils/dom.js";
 
 export function updateCounts() {
     if (columns.todo) {
