@@ -1,3 +1,4 @@
+// main.js
 import '../../css/style.css';
 
 import {
@@ -23,10 +24,7 @@ if (usuario) {
     setupSidebar();
     initKanban();
 
-    // INTEGRALIZAÇÃO HU04: Carrega e injeta o balanço de dados inicial no primeiro boot
-    initDashboardMetrics();
-
-
+    // Cria os dados de projeto padrão se não existirem
     if (!localStorage.getItem("currentProject")) {
         localStorage.setItem(
             "currentProject",
@@ -34,6 +32,7 @@ if (usuario) {
         );
     }
 
+    // Cria os dados de sprints padrão se não existirem
     if (!localStorage.getItem("sprints")) {
         localStorage.setItem(
             "sprints",
@@ -49,47 +48,11 @@ if (usuario) {
         );
     }
 
+    // SE O LOCALSTORAGE ESTIVER VAZIO, CRIA APENAS UM ARRAY DE TAREFAS ZERADO (SEM MOCKS)
     if (!localStorage.getItem("taskflow_tasks")) {
-        localStorage.setItem(
-            "taskflow_tasks",
-            JSON.stringify([
-                {
-                    id: crypto.randomUUID(),
-                    projectId: "1",
-                    sprintId: "1",
-                    title: "CRUD completo de tarefas",
-                    priority: "high",
-                    responsible: "JS",
-                    column: "todo", // Sincronizado para bater com as colunas do storage
-                    status: "backlog",
-                    dueDate: "2026-05-12"
-                },
-                {
-                    id: crypto.randomUUID(),
-                    projectId: "1",
-                    sprintId: "1",
-                    title: "Quadro Kanban com drag & drop",
-                    priority: "medium",
-                    responsible: "MC",
-                    column: "doing", // Sincronizado para bater com as colunas do storage
-                    status: "backlog",
-                    dueDate: "2026-05-15"
-                },
-                {
-                    id: crypto.randomUUID(),
-                    projectId: "1",
-                    sprintId: "1",
-                    title: "Filtros e busca de tarefas",
-                    priority: "low",
-                    responsible: "PS",
-                    column: "done", // Sincronizado para bater com as colunas do storage
-                    status: "backlog",
-                    dueDate: "2026-05-18"
-                }
-            ])
-        );
-        
-        // Recarrega as métricas após injetar os mocks iniciais caso o localStorage estivesse vazio
-        initDashboardMetrics();
+        localStorage.setItem("taskflow_tasks", JSON.stringify([]));
     }
+    
+    // INTEGRALIZAÇÃO HU04: Carrega as métricas oficiais (agora sincronizadas e limpas)
+    initDashboardMetrics();
 }

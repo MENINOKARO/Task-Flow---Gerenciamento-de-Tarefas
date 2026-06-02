@@ -1,137 +1,333 @@
-// src/js/dashboard/dashboard.js
+/**
+ * src/js/dashboard/dashboard.js
+ * Módulo de controle e renderização dos indicadores de desempenho (Dashboard).
+ * Integrado de forma nativa e direta com os seletores ID do DOM do projeto.
+ */
 
-// Importa a função de leitura mapeada do seu arquivo de utilitários
-import { getTasks } from "../utils/storage.js";
+import { getTasks } from "../utils/storage.js"; 
+
+// Estados do módulo
+let dadosEquipeGlobais = {};
+let membroExpandidoGlobal = null;
 
 /**
- * Inicializa e gerencia todo o ecossistema de relatórios 
+ * Inicializa o processamento e aciona a renderização dos componentes do Dashboard
  */
 export function initDashboardMetrics() {
-    console.log("📊 Processando indicadores de desempenho...");
+    console.log("📊 Inicializando métricas do dashboard...");
 
-    // 1. Obtém os dados reais mantidos pelo storage.js
     const tasks = getTasks() || [];
-    
-    // Obtém os projetos salvos (com fallback para o projeto padrão do mock se estiver vazio)
-    const projects = JSON.parse(localStorage.getItem("projects")) || [{ id: "1", name: "TaskFlow" }];
 
-    // 2. Estrutura de dados para o balanço das métricas globais
+    // Estrutura de contadores para os cards superiores identificados no HTML
     const metricas = {
-        totalProjetos: projects.length,
         totalTarefas: tasks.length,
         concluidas: 0,
-        pendentes: 0,
-        emAtraso: 0
+        emDesenvolvimento: 0,
+        emAtraso: 0,
+        emTeste: 0,
+        emRevisao: 0
     };
 
-    // Estruturas de agrupamento para a Visão de Equipe e Alertas
-    const workloadMembros = {}; // Agrupamento por responsável (Ex: {"JS": 3, "MC": 1})
-    const alertasCriticos = [];  // Lista de tarefas Urgentes ou Atrasadas
+    const workloadMembros = {}; 
+    const alertasCriticos = [];  
 
-    // Data de controle para verificação de atrasos (Ignorando horário)
-    const hoje = new Date();
+    // Data base do sistema: Junho de 2026
+    const hoje = new Date(2026, 5, 1); 
     hoje.setHours(0, 0, 0, 0);
 
-    // 3. Loop único varrendo o array de tarefas para calcular tudo
     tasks.forEach(task => {
-        // A) Separação de Concluídas vs Pendentes
-        if (task.column === "done" || task.status === "done") {
-            metricas.concluidas++;
-        } else {
-            metricas.pendentes++;
+        const colunaAtual = task.column ? task.column.toLowerCase().trim() : "";
 
-            // B) Verificação Lógica de Atraso (Se não está concluída e o prazo passou)
-            if (task.dueDate) {
-                // Tenta tratar formatos curtos de string (Ex: "12 mai" -> adiciona o ano atual)
-                let dataTexto = task.dueDate;
-                if (!dataTexto.includes(hoje.getFullYear().toString()) && isNaN(Date.parse(dataTexto))) {
-                    // Mapeia meses abreviados em PT-BR para uma conversão segura se necessário
-                    const meses = { jan: 0, fev: 1, mar: 2, abr: 3, mai: 4, jun: 5, jul: 6, ago: 7, set: 8, out: 9, nov: 10, dez: 11 };
-                    const partes = dataTexto.toLowerCase().split(" ");
-                    if (partes.length >= 2) {
-                        const dia = parseInt(partes[0]);
-                        const mes = meses[partes[1]];
-                        if (!isNaN(dia) && mes !== undefined) {
-                            const dataTratada = new Date(hoje.getFullYear(), mes, dia);
-                            if (dataTratada < hoje) metricas.emAtraso++;
-                        }
-                    }
-                } else {
-                    const dataPrazo = new Date(task.dueDate);
-                    if (!isNaN(dataPrazo) && dataPrazo < hoje) {
+        // 1. Contagem por status mapeando as colunas nativas do Kanban
+        if (colunaAtual === "done") {
+            metricas.concluidas++;
+        } else if (colunaAtual === "doing") {
+            metricas.emDesenvolvimento++;
+        } else if (colunaAtual === "testing") {
+            metricas.emTeste++;
+        } else if (colunaAtual === "review") {
+            metricas.emRevisao++;
+        }
+
+        // 2. Validação e checagem lógica de prazos e atrasos
+        let estaAtrasada = false;
+        if (task.dueDate) {
+            let dataPrazo;
+            const dataLimpa = task.dueDate.trim();
+            
+            if (dataLimpa.includes("-")) {
+                const [ano, mes, dia] = dataLimpa.split("-").map(Number);
+                dataPrazo = new Date(ano, mes - 1, dia);
+            } else if (dataLimpa.includes("/")) {
+                const [dia, mes, ano] = dataLimpa.split("/").map(Number);
+                dataPrazo = new Date(ano, mes - 1, dia);
+            } else {
+                dataPrazo = new Date(dataLimpa);
+            }
+
+            if (!isNaN(dataPrazo)) {
+                dataPrazo.setHours(0, 0, 0, 0);
+                if (dataPrazo < hoje) {
+                    estaAtrasada = true;
+                    // Computa atraso geral apenas se não estiver na coluna "done"
+                    if (colunaAtual !== "done") {
                         metricas.emAtraso++;
                     }
                 }
             }
         }
 
-        // C) Visão de Equipe: Mapeia e incrementa carga de trabalho por membro
-        const responsavel = task.responsible || "Não atribuído";
-        workloadMembros[responsavel] = (workloadMembros[responsavel] || 0) + 1;
+        // 3. Triagem de Alertas Críticos (Não concluídas de Alta Prioridade ou Atrasadas)
+        const ehPrioridadeAlta = task.priority && task.priority.toLowerCase() === "high";
+        const naoEstaConcluida = (colunaAtual !== "done");
 
-        // D) Alertas Críticos: Filtra tarefas de prioridade ALTA ou que estejam atrasadas
-        // ALTERAÇÃO DE SEGURANÇA: O uso do ?. impede quebra caso task.priority venha indefinido
-        const ehPrioridadeAlta = task.priority && (task.priority.toLowerCase() === "high" || task.priority.toLowerCase() === "alta");
-        if (ehPrioridadeAlta && task.column !== "done") {
+        if (naoEstaConcluida && (ehPrioridadeAlta || estaAtrasada)) {
             alertasCriticos.push(task);
+        }
+
+        // 4. Consolidação da carga de trabalho (Workload) por membro
+        const responsavel = task.responsible ? task.responsible.trim() : "Não atribuído";
+        
+        if (!workloadMembros[responsavel]) {
+            workloadMembros[responsavel] = { todo: 0, doing: 0, testing: 0, review: 0, done: 0, overdue: 0, total: 0 };
+        }
+
+        workloadMembros[responsavel].total++;
+
+        if (colunaAtual === "done") {
+            workloadMembros[responsavel].done++;
+        } else {
+            if (colunaAtual === "doing") workloadMembros[responsavel].doing++;
+            else if (colunaAtual === "testing") workloadMembros[responsavel].testing++;
+            else if (colunaAtual === "review") workloadMembros[responsavel].review++;
+            else workloadMembros[responsavel].todo++;
+
+            if (estaAtrasada) {
+                workloadMembros[responsavel].overdue++;
+            }
         }
     });
 
-    // 4. Calcula o percentual de conclusão geral
+    dadosEquipeGlobais = workloadMembros;
+
     const percentualProgresso = metricas.totalTarefas > 0 
         ? Math.round((metricas.concluidas / metricas.totalTarefas) * 100) 
         : 0;
 
-    // 5. Envia todos os dados processados para a interface do usuário
+    // Renderiza os elementos na tela baseando-se estritamente na árvore do HTML fornecido
     renderizarDashboard(metricas, percentualProgresso, workloadMembros, alertasCriticos);
+    configurarFiltroMembros();
 }
 
 /**
- * Atualiza os elementos visuais do HTML injetando os dados reais
+ * Escuta eventos de input no campo nativo id="search-member-input"
+ */
+function configurarFiltroMembros() {
+    const inputBusca = document.getElementById("search-member-input");
+    if (!inputBusca) return;
+
+    inputBusca.removeEventListener("input", tratarMudancaBusca);
+    inputBusca.addEventListener("input", tratarMudancaBusca);
+}
+
+function tratarMudancaBusca(e) {
+    const termoBusca = e.target.value.toLowerCase().trim();
+    renderizarListaCargaTrabalho(dadosEquipeGlobais, termoBusca);
+}
+
+/**
+ * Expande ou recolhe o detalhamento de um membro (Escopo Global para rodar no clique do HTML)
+ */
+window.alternarDetalhesMembro = function(membroNome) {
+    membroExpandidoGlobal = (membroExpandidoGlobal === membroNome) ? null : membroNome;
+    
+    const inputBusca = document.getElementById("search-member-input");
+    const termo = inputBusca ? inputBusca.value.toLowerCase().trim() : "";
+    renderizarListaCargaTrabalho(dadosEquipeGlobais, termo);
+}
+
+/**
+ * Alimenta dinamicamente a área id="team-workload-container"
+ */
+function renderizarListaCargaTrabalho(equipe, filtroTexto = "") {
+    const containerEquipe = document.getElementById("team-workload-container");
+    if (!containerEquipe) return;
+
+    const membrosFiltrados = Object.entries(equipe).filter(([membro]) => {
+        return membro.toLowerCase().includes(filtroTexto);
+    });
+
+    if (membrosFiltrados.length === 0) {
+        containerEquipe.innerHTML = `
+            <div class="text-center py-6 text-slate-400 font-medium text-[11px]">
+                 Nenhum membro encontrado com esse nome.
+            </div>
+        `;
+        return;
+    }
+
+    containerEquipe.innerHTML = membrosFiltrados.map(([membro, dados]) => {
+        const caractereAvatar = membro !== "Não atribuído" ? membro.charAt(0).toUpperCase() : "?";
+        const estaAberto = membroExpandidoGlobal === membro;
+        
+        const badgeAtraso = dados.overdue > 0 
+            ? `<span class="inline-flex items-center gap-1 text-[10px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-100">⚠️ ${dados.overdue} atrasada${dados.overdue > 1 ? 's' : ''}</span>`
+            : '';
+
+        // Painel colapsável interno padronizado com as cores azuis do "Progresso"
+        const painelDetalhadoHTML = estaAberto ? `
+            <div class="mt-2.5 p-3 bg-white border border-slate-200/70 rounded-xl grid grid-cols-2 sm:grid-cols-5 gap-2 text-center mix-blend-normal animate-modal">
+                <div class="bg-slate-50 border border-slate-200/40 p-2 rounded-lg">
+                    <span class="block text-[9px] font-bold text-blue-500 uppercase tracking-wider">Progresso</span>
+                    <span class="text-sm font-bold text-blue-600 block mt-0.5">${dados.doing}</span>
+                </div>
+                <div class="bg-slate-50 border border-slate-200/40 p-2 rounded-lg">
+                    <span class="block text-[9px] font-bold text-blue-500 uppercase tracking-wider">Em Teste</span>
+                    <span class="text-sm font-bold text-blue-600 block mt-0.5">${dados.testing}</span>
+                </div>
+                <div class="bg-slate-50 border border-slate-200/40 p-2 rounded-lg">
+                    <span class="block text-[9px] font-bold text-blue-500 uppercase tracking-wider">Revisão</span>
+                    <span class="text-sm font-bold text-blue-600 block mt-0.5">${dados.review}</span>
+                </div>
+                <div class="bg-slate-50 border border-slate-200/40 p-2 rounded-lg">
+                    <span class="block text-[9px] font-bold text-blue-500 uppercase tracking-wider">Concluído</span>
+                    <span class="text-sm font-bold text-blue-600 block mt-0.5">${dados.done}</span>
+                </div>
+                <div class="bg-slate-50 border border-slate-200/40 p-2 rounded-lg">
+                    <span class="block text-[9px] font-bold text-blue-500 uppercase tracking-wider">Atrasado</span>
+                    <span class="text-sm font-bold text-blue-600 block mt-0.5">${dados.overdue}</span>
+                </div>
+            </div>
+        ` : '';
+        
+        return `
+            <div class="p-2 mb-2 bg-slate-50/60 border ${estaAberto ? 'border-blue-200 bg-blue-50/10' : 'border-slate-100'} rounded-xl transition-all duration-150">
+                <div class="flex items-center justify-between cursor-pointer" onclick="alternarDetalhesMembro('${membro.replace(/'/g, "\\'")}')">
+                    <div class="flex items-center gap-2.5 min-w-0 flex-1">
+                        <div class="flex items-center justify-center ${estaAberto ? 'bg-blue-600 text-white' : 'bg-blue-50 text-blue-600'} rounded-full font-bold h-6 w-6 text-[10px] uppercase border border-blue-100 shrink-0">
+                            ${caractereAvatar}
+                        </div>
+                        <div class="flex items-center gap-2 min-w-0">
+                            <span class="font-semibold text-slate-700 text-xs truncate">${membro}</span>
+                            ${badgeAtraso}
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <span class="px-2 py-0.5 bg-slate-100 text-slate-600 border border-slate-200 rounded-md text-[10px] font-bold shrink-0">
+                            ${dados.total} ${dados.total === 1 ? 'tarefa' : 'tarefas'}
+                        </span>
+                        <i class="ph ph-caret-down text-slate-400 transition-transform duration-200 ${estaAberto ? 'rotate-180' : ''}"></i>
+                    </div>
+                </div>
+                ${painelDetalhadoHTML}
+            </div>
+        `;
+    }).join("");
+}
+
+/**
+ * Popula e gerencia todos os IDs de blocos de métricas superiores e painéis de alertas
  */
 function renderizarDashboard(metricas, progresso, equipe, alertas) {
-    // Injeção dos Cards de Resumo
-    const elProjetos = document.getElementById("metric-total-projects");
-    const elTarefas = document.getElementById("metric-total-tasks");
-    const elConcluidas = document.getElementById("metric-completed-tasks");
-    const elPendentes = document.getElementById("metric-pending-tasks");
-    const elAtrasadas = document.getElementById("metric-overdue-tasks");
+    // Vinculação direta com os IDs nativos das caixas superiores do HTML
+    const mapeamentoCards = {
+        "metric-total-tasks": metricas.totalTarefas,
+        "metric-completed-tasks": metricas.concluidas,
+        "metric-in-progress-tasks": metricas.emDesenvolvimento,
+        "metric-overdue-tasks": metricas.emAtraso,
+        "metric-testing-tasks": metricas.emTeste,
+        "metric-review-tasks": metricas.emRevisao
+    };
 
-    if (elProjetos) elProjetos.innerText = metricas.totalProjetos;
-    if (elTarefas) elTarefas.innerText = metricas.totalTarefas;
-    if (elConcluidas) elConcluidas.innerText = metricas.concluidas;
-    if (elPendentes) elPendentes.innerText = metricas.pendentes;
-    if (elAtrasadas) elAtrasadas.innerText = metricas.emAtraso;
+    Object.entries(mapeamentoCards).forEach(([id, valor]) => {
+        const elemento = document.getElementById(id);
+        if (elemento) elemento.innerText = valor;
+    });
 
-    // Injeção da Barra de Progresso Geral
+    // Barra de progresso do projeto
     const txtProgresso = document.getElementById("progress-percentage");
     const barraProgresso = document.getElementById("progress-bar-fill");
     
     if (txtProgresso) txtProgresso.innerText = `${progresso}%`;
     if (barraProgresso) barraProgresso.style.width = `${progresso}%`;
 
-    // Injeção da Carga de Trabalho da Equipe
-    const containerEquipe = document.getElementById("team-workload-container");
-    if (containerEquipe) {
-        containerEquipe.innerHTML = Object.entries(equipe).map(([membro, qtd]) => `
-            <div class="flex items-center justify-between p-2 border-b border-slate-100 text-sm">
-                <span class="font-medium text-slate-700">${membro}</span>
-                <span class="px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full text-xs font-semibold">${qtd} tasks</span>
-            </div>
-        `).join("") || `<p class="text-xs text-slate-400 p-2">Nenhuma tarefa atribuída.</p>`;
-    }
+    // Renderiza a listagem de membros
+    renderizarListaCargaTrabalho(equipe, "");
 
-    // Injeção do Bloco de Alertas Críticos
-    const containerAlertas = document.getElementById("critical-alerts-container");
-    if (containerAlertas) {
-        containerAlertas.innerHTML = alertas.map(task => `
-            <div class="flex flex-col p-2 bg-red-50/60 border-l-4 border-red-500 rounded text-xs gap-1">
-                <span class="font-semibold text-red-800">${task.title}</span>
-                <div class="flex justify-between text-red-600">
-                    <span>Coluna: ${(task.column?.toUpperCase() || "NÃO DEFINIDA")}</span>
-                    <span class="font-medium">${task.dueDate || "Sem prazo"}</span>
+    // Organização e distribuição dos blocos de alertas estruturais
+    const containerAtrasadas = document.getElementById("container-alertas-atrasadas");
+    const containerPrioridade = document.getElementById("container-alertas-prioridade");
+
+    if (containerAtrasadas || containerPrioridade) {
+        const hoje = new Date(2026, 5, 1);
+        hoje.setHours(0, 0, 0, 0);
+
+        const listaAtrasadas = [];
+        const listaPrioridades = [];
+
+        alertas.forEach(task => {
+            let dataPrazo;
+            let ehAtrasada = false;
+            const dataLimpa = task.dueDate ? task.dueDate.trim() : "";
+
+            if (dataLimpa.includes("-")) {
+                const [ano, mes, dia] = dataLimpa.split("-").map(Number);
+                dataPrazo = new Date(ano, mes - 1, dia);
+            } else if (dataLimpa.includes("/")) {
+                const [dia, mes, ano] = dataLimpa.split("/").map(Number);
+                dataPrazo = new Date(ano, mes - 1, dia);
+            }
+
+            if (dataPrazo && !isNaN(dataPrazo)) {
+                dataPrazo.setHours(0, 0, 0, 0);
+                if (dataPrazo < hoje) ehAtrasada = true;
+            }
+
+            if (ehAtrasada && task.column !== "done") {
+                listaAtrasadas.push(task);
+            } else if (task.priority === "high" && task.column !== "done") {
+                listaPrioridades.push(task);
+            }
+        });
+
+        const gerarLinhaAlertaCompacta = (task, corBadge) => {
+            const responsavelNome = task.responsible ? task.responsible.trim() : "?";
+            const caractereAvatar = responsavelNome !== "?" ? responsavelNome.charAt(0).toUpperCase() : "?";
+            const formatoPrazo = task.dueDate || "S/P";
+            const taskId = task.id || "";
+
+            return `
+                <div class="flex items-center justify-between p-2.5 mb-2 bg-white border border-slate-200/60 rounded-xl hover:border-slate-300 transition-all duration-200 cursor-pointer gap-4"
+                     onclick="localStorage.setItem('abrir_tarefa_id', '${taskId}'); window.location.hash = '#kanban';">
+                    <div class="flex items-center gap-2.5 min-w-0 flex-1">
+                        <span class="h-2 w-2 rounded-full ${corBadge} shrink-0"></span>
+                        <span class="font-semibold text-slate-700 text-xs truncate leading-none">${task.title}</span>
+                    </div>
+                    <div class="flex items-center gap-3 shrink-0">
+                        <span class="text-[10px] font-bold text-slate-500 bg-slate-100/80 px-2 py-0.5 rounded-md">${formatoPrazo}</span>
+                        <div class="flex items-center justify-center bg-blue-50 text-blue-600 rounded-full font-bold h-6 w-6 text-[10px] uppercase border border-blue-100">
+                            ${caractereAvatar}
+                        </div>
+                    </div>
                 </div>
-            </div>
-        `).join("") || `<p class="text-xs text-emerald-600 font-medium p-2">✨ Tudo sob controle! Nenhum alerta crítico.</p>`;
+            `;
+        };
+
+        if (containerAtrasadas) {
+            containerAtrasadas.innerHTML = listaAtrasadas.map(task => gerarLinhaAlertaCompacta(task, "bg-red-500")).join("") || 
+                `<p class="text-[11px] text-slate-400 text-center py-4 font-medium"> Nenhuma tarefa em atraso.</p>`;
+        }
+
+        if (containerPrioridade) {
+            containerPrioridade.innerHTML = listaPrioridades.map(task => gerarLinhaAlertaCompacta(task, "bg-amber-500")).join("") || 
+                `<p class="text-[11px] text-slate-400 text-center py-4 font-medium"> Sem pendências de prioridade alta.</p>`;
+        }
     }
+}
+
+// Inicialização segura baseada no ciclo de vida do DOM
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initDashboardMetrics);
+} else {
+    initDashboardMetrics();
 }
