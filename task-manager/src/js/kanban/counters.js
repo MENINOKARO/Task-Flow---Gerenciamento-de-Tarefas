@@ -1,26 +1,33 @@
 import { 
     columns,
-    countTodo, 
-    countDoing, 
-    countTesting, 
-    countReview, 
-    countDone 
-} from "../utils/dom.js";
+    countTodo,
+    countDoing,
+    countTesting,
+    countReview,
+    countDone
+} from "./dom.js";
 
 export function updateCounts() {
+
     if (columns.todo) {
-        countTodo.innerText = columns.todo.children.length;
+
+        countTodo.innerText =
+            columns.todo.children.length;
+
     }
+
     if (columns.doing) {
-        countDoing.innerText = columns.doing.children.length;
+
+        countDoing.innerText =
+            columns.doing.children.length;
+
     }
-    if (columns.testing) {
-        countTesting.innerText = columns.testing.children.length;
-    }
-    if (columns.review) {
-        countReview.innerText = columns.review.children.length;
-    }
+
     if (columns.done) {
-        countDone.innerText = columns.done.children.length;
+
+        countDone.innerText =
+            columns.done.children.length;
+
     }
+
 }

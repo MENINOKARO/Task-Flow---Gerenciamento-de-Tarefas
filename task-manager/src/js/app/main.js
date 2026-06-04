@@ -7,11 +7,8 @@ import {
 } from '../auth/session.js';
 
 import { initBacklogModal } from "../backlog/backlog.modal.js";
-import { setupSidebar } from "./sidebar.js";
-import { initKanban } from "../kanban/kanban.js";
-
-// INTEGRALIZAÇÃO HU04: Importação do renderizador de métricas globais
-import { initDashboardMetrics } from "../dashboard/dashboard.js";
+// 👇 Importação do novo módulo de controle da sidebar
+import { setupSidebar } from "../dashboard/sidebar.js";
 
 // 1. Verifica segurança
 const usuario = checkAuth();
@@ -21,10 +18,14 @@ if (usuario) {
 
     initUserUI(usuario);
     initBacklogModal();
+    // 👇 Inicializa o recurso de colapsar/esticar a barra lateral
     setupSidebar();
-    initKanban();
 
-    // Cria os dados de projeto padrão se não existirem
+    // ========================================================
+    // MOCK INTELIGENTE (Não sobrescreve mais seus dados no F5)
+    // ========================================================
+
+    // Garante o projeto ativo
     if (!localStorage.getItem("currentProject")) {
         localStorage.setItem(
             "currentProject",

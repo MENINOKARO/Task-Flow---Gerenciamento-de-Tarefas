@@ -1,190 +1,69 @@
-
 import { openDashboardEditModal } from "./events.js";
-
-
 import { editingCard } from "./state.js";
+import { saveTasks, getTasks } from "./storage.js";
 
+export function createCard(
+  title,
+  desc,
+  priority,
+  dueDate,
 
-import { saveTasks, getTasks } from "../utils/storage.js";
+  id = Date.now().toString(),
+) {
+  const priorityStyles = {
+    Baixa: "bg-slate-100 text-slate-600",
+    Média: "bg-blue-100 text-blue-600",
+    Alta: "bg-red-100 text-red-600",
+  };
 
-export function createCard(task) {
   const card = document.createElement("div");
-  card.className = "bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition cursor-grab active:cursor-grabbing space-y-3 relative group";
-  card.draggable = true;
-  card.dataset.id = task.id;
 
-  const priorityColors = {
-    high: "bg-red-50 text-red-600",
-    medium: "bg-amber-50 text-amber-600",
-    low: "bg-green-50 text-green-600",
-    alta: "bg-red-50 text-red-600",
-    média: "bg-amber-50 text-amber-600",
-    baixa: "bg-green-50 text-green-600"
-  };
+  card.dataset.id = id;
 
-  const priorityLabel = {
-    high: "ALTA",
-    medium: "MÉDIA",
-    low: "BAIXA",
-    alta: "ALTA",
-    média: "MÉDIA",
-    baixa: "BAIXA"
-  };
+  card.className =
+    "task-card group bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-blue-400 hover:shadow-md transition-all duration-200 cursor-grab active:cursor-grabbing";
 
-  const currentPriority = (task.priority || "medium").toLowerCase();
-  const badgeClass = priorityColors[currentPriority] || "bg-slate-50 text-slate-600";
-  const labelText = priorityLabel[currentPriority] || "MÉDIA";
-
-  // Gera as iniciais do responsável
-  const obterIniciais = (nome) => {
-    if (!nome) return "??";
-    const partes = nome.trim().split(" ");
-    if (partes.length > 1) {
-      return (partes[0][0] + partes[1][0]).toUpperCase();
-    }
-    return partes[0].substring(0, 2).toUpperCase();
-  };
-
-  const iniciaisAvatar = obterIniciais(task.responsible);
-
-  // HTML DO CARD: Apenas o avatar redondo, sem o nome do lado corrido
   card.innerHTML = `
-    <div class="flex justify-between items-start gap-2">
-      <span class="text-xs font-bold px-2 py-0.5 rounded-md tracking-wider ${badgeClass}">
-        ${labelText}
-      </span>
-      <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-        <button class="btn-edit-card p-1 text-slate-400 hover:text-slate-600 rounded-md hover:bg-slate-50 transition" title="Editar tarefa">
-          <i class="ph ph-pencil-simple text-base"></i>
-        </button>
-        <button class="btn-delete-card p-1 text-slate-400 hover:text-red-600 rounded-md hover:bg-red-50 transition" title="Excluir tarefa">
-          <i class="ph ph-trash text-base"></i>
-        </button>
-      </div>
-    </div>
+        <div class="flex justify-between items-start mb-2">
+            <span class="priority-tag px-2 py-0.5 rounded text-[10px] font-bold uppercase ${priorityStyles[priority] || priorityStyles["Baixa"]}">
+                ${priority}
+            </span>
 
-    <div>
-      <h4 class="text-sm font-bold text-slate-800">${task.title}</h4>
-      ${task.description ? `<p class="text-xs text-slate-400 mt-1 line-clamp-2">${task.description}</p>` : ""}
-    </div>
+            <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
 
-    <div class="flex items-center justify-between pt-2 text-xs text-slate-400">
-      <div class="flex items-center gap-2">
-        <div class="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-[10px] font-bold text-white uppercase" title="${task.responsible || 'Sem responsável'}">
-          ${iniciaisAvatar}
+                <button
+                    type="button"
+                    class="edit-btn text-slate-400 hover:text-blue-500 transition-colors">
+
+                    <i class="ph ph-pencil-simple text-lg"></i>
+
+                </button>
+
+                <button
+                    type="button"
+                    class="delete-btn text-slate-400 hover:text-red-500 transition-colors">
+
+                    <i class="ph ph-trash text-lg"></i>
+
+                </button>
+
+            </div>
         </div>
-      </div>
-      ${task.dueDate || task.date ? `
-        <div class="flex items-center gap-1 text-slate-400">
-          <i class="ph ph-calendar-blank text-sm"></i>
-          <span>${task.dueDate || task.date}</span>
+
+        <h4 class="text-sm font-bold text-slate-900 leading-snug mb-1">
+            ${title}
+        </h4>
+
+        <p class="text-[11px] text-slate-500 line-clamp-2">
+            ${desc || "Sem descrição."}
+        </p>
+
+        <div class="mt-3 flex items-center gap-1 text-[11px] text-slate-400">
+            <i class="ph ph-calendar-blank"></i>
+            <span class="task-date">
+                ${dueDate || "Sem prazo"}
+            </span>
         </div>
-      ` : ""}
-    </div>
-  `;
-
-  // -------------------------------------------------------------
-  // CLIQUE NO CARD INTEIRO - COMENTÁRIOS E USUÁRIO LOGADO CORRETO
-  // -------------------------------------------------------------
-  card.addEventListener("click", (e) => {
-    if (e.target.closest('.btn-edit-card') || e.target.closest('.btn-delete-card') || e.target.closest('button')) {
-      return; 
-    }
-
-    const oldModal = document.getElementById("mvp-detail-modal-overlay-kanban");
-    if (oldModal) oldModal.remove();
-
-    // 1. Definições de Prioridade e ID de exibição
-    const priorityLabels = { high: "ALTA", medium: "MÉDIA", low: "BAIXA", alta: "ALTA", media: "MÉDIA", baixa: "BAIXA" };
-    const currentPriority = (task.priority || task.prioridade || "medium").toLowerCase();
-    const priorityText = priorityLabels[currentPriority] || "MÉDIA";
-    const taskDisplayId = task.taskCode || task.formattedId || task.code || (task.id ? task.id.substring(0, 5).toUpperCase() : 'TF-1');
-
-    // 2. BUSCA O USUÁRIO LOGADO REAL DA CHAVE 'usuarioLogado'
-    const loggedUserRaw = localStorage.getItem('usuarioLogado');
-    let currentUsername = "Anônimo";
-
-    if (loggedUserRaw) {
-      try {
-        const parsed = JSON.parse(loggedUserRaw);
-        currentUsername = parsed.nome || parsed.username || parsed.user || parsed.login || "Usuário";
-      } catch (err) {
-        currentUsername = loggedUserRaw.replace(/"/g, '').trim();
-      }
-    }
-
-    // 3. Estrutura do Modal Gêmeo com Seção de Comentários Integrada
-    const modalHTML = `
-      <div id="mvp-detail-modal-overlay-kanban" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-[70]">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 border border-slate-100 space-y-4 max-h-[90vh] overflow-y-auto">
-          
-          <div class="flex justify-between items-start">
-            <div>
-              <span id="detail-task-id-kanban" class="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md">${taskDisplayId}</span>
-              <h3 id="detail-task-title-kanban" class="text-xl font-bold text-slate-800 mt-2">
-                ${task.title || task.nome || "Tarefa sem título"}
-              </h3>
-            </div>
-            <button type="button" id="close-detail-modal-kanban" class="text-slate-400 hover:text-slate-600 transition">
-              <i class="ph ph-x text-xl"></i>
-            </button>
-          </div>
-
-          <hr class="border-slate-100" />
-
-          <div class="grid grid-cols-3 gap-4 bg-slate-50 p-3 rounded-xl text-xs">
-            <div>
-              <span class="block text-slate-400 font-medium mb-0.5">Responsável</span>
-              <span id="detail-task-responsible-kanban" class="font-bold text-slate-700">${task.responsible || task.responsavel || "Sem responsável"}</span>
-            </div>
-            <div>
-              <span class="block text-slate-400 font-medium mb-0.5">Prazo</span>
-              <span id="detail-task-date-kanban" class="font-bold text-slate-700">${task.dueDate || task.prazo || "Sem prazo"}</span>
-            </div>
-            <div>
-              <span class="block text-slate-400 font-medium mb-0.5">Prioridade</span>
-              <span id="detail-task-priority-kanban" class="font-bold uppercase text-slate-700">${priorityText}</span>
-            </div>
-          </div>
-
-          <div>
-            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Descrição detalhada</h4>
-            <div id="detail-task-desc-kanban" class="text-sm text-slate-600 bg-slate-50/50 border border-slate-100 rounded-xl p-4 min-h-[80px] whitespace-pre-wrap">${task.description || "Nenhum detalhe inserido."}</div>
-          </div>
-
-          <hr class="border-slate-100" />
-
-          <div class="space-y-3">
-            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
-              <i class="ph ph-chat-centered-text text-sm"></i> Comentários
-            </h4>
-            
-            <div class="flex gap-2">
-              <input 
-                id="comment-input-kanban" 
-                type="text" 
-                placeholder="Escreva um comentário..." 
-                class="flex-1 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-slate-400"
-              />
-              <button 
-                id="btn-add-comment-kanban" 
-                class="bg-slate-800 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-slate-700 transition"
-              >
-                Enviar
-              </button>
-            </div>
-
-            <div id="comments-container-kanban" class="space-y-2 max-h-[200px] overflow-y-auto pr-1">
-              </div>
-          </div>
-
-          <div class="flex justify-end pt-2">
-            <button type="button" id="close-detail-modal-btn-kanban" class="px-5 py-2 text-sm font-semibold text-white bg-slate-800 hover:bg-slate-700 rounded-xl transition shadow-sm">
-              Fechar Janela
-            </button>
-          </div>
-        </div>
-      </div>
     `;
 
     document.body.insertAdjacentHTML("beforeend", modalHTML);
@@ -454,7 +333,7 @@ export function createCard(task) {
           ejecutarExclusao();
         }
       }
-    });2
+    });
   }
 
   card.addEventListener("dragstart", () => card.classList.add("opacity-40"));
