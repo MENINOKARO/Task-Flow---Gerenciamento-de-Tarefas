@@ -8,15 +8,10 @@ import {
   taskTitle,
   taskDesc,
   taskPriority,
-  taskDate,
+  taskDate
 } from "./dom.js";
 
 import { editingCard } from "./state.js";
-
-import { updateCounts } from "./counters.js";
-
-import { saveTasks } from "./storage.js";
-
 import { toggleModal } from "./modal.js";
 
 import { sortColumn } from "./sort.js";

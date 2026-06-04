@@ -1,6 +1,4 @@
-import {
-    searchInput
-} from "./dom.js";
+import { searchInput } from "../utils/dom.js";
 
 export function setupSearch() {
 

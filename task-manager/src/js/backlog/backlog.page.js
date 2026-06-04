@@ -29,13 +29,17 @@ export function renderBacklogPage() {
         </div>
 
         <div class="space-y-6">
-          ${projectSprints.length > 0 
-            ? projectSprints.map(sprint => {
-                // Filtra as tasks pertencentes à sprint
-                const sprintTasks = tasks.filter(task => task.sprintId === sprint.id);
-                return SprintCard(sprint, sprintTasks);
-              }).join("")
-            : `<div class="text-center py-12 text-slate-400 border border-dashed border-slate-200 rounded-2xl">Nenhuma sprint criada. Clique em 'Nova Sprint' para começar.</div>`
+          ${
+            projectSprints.length > 0
+              ? projectSprints
+                  .map((sprint) => {
+                    const sprintTasks = tasks.filter(
+                      (task) => task.sprintId === sprint.id,
+                    );
+                    return SprintCard(sprint, sprintTasks);
+                  })
+                  .join("")
+              : `<div class="text-center py-12 text-slate-400 border border-dashed border-slate-200 rounded-2xl">Nenhuma sprint criada. Clique em 'Nova Sprint' para começar.</div>`
           }
         </div>
 
@@ -353,17 +357,55 @@ function setupEvents() {
 
       if (sprintName.trim() !== "") {
         const sprints = getSprints();
-        
-        const newSprint = {
-          id: crypto.randomUUID(),
-          projectId: activeProjectId, // 👈 Injeta o projeto ativo correto aqui
-          name: sprintName,
-          goal: "Objetivo planejado."
-        };
-        
-        sprints.push(newSprint);
-        saveSprints(sprints);
-        
+
+        if (editId) {
+          const updatedSprints = sprints.map((s) => {
+            if (s.id === editId) {
+              return {
+                ...s,
+                name: sprintName,
+                startDate: startDate,
+                endDate: endDate,
+              };
+            }
+            return s;
+          });
+          saveSprints(updatedSprints);
+
+          if (sweetAlertInstance) {
+            sweetAlertInstance.fire({
+              title: "Sucesso!",
+              text: "Sprint alterada com sucesso.",
+              icon: "success",
+              confirmButtonColor: "#1e293b",
+            });
+          } else {
+            alert("Sucesso: Sprint alterada com sucesso.");
+          }
+        } else {
+          const newSprint = {
+            id: crypto.randomUUID(),
+            projectId: activeProjectId,
+            name: sprintName,
+            startDate: startDate,
+            endDate: endDate,
+            status: "planejada",
+          };
+          sprints.push(newSprint);
+          saveSprints(sprints);
+
+          if (sweetAlertInstance) {
+            sweetAlertInstance.fire({
+              title: "Sucesso!",
+              text: "Sprint criada com sucesso.",
+              icon: "success",
+              confirmButtonColor: "#1e293b",
+            });
+          } else {
+            alert("Sucesso: Sprint criada com sucesso.");
+          }
+        }
+
         sprintModal.classList.add("hidden");
         renderBacklogPage();
       }

@@ -1,7 +1,9 @@
-import {
+import { 
     columns,
     countTodo,
     countDoing,
+    countTesting,
+    countReview,
     countDone
 } from "./dom.js";
 

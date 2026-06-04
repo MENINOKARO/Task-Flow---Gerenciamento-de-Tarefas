@@ -1,3 +1,4 @@
+// main.js
 import '../../css/style.css';
 
 import {
@@ -6,6 +7,8 @@ import {
 } from '../auth/session.js';
 
 import { initBacklogModal } from "../backlog/backlog.modal.js";
+// 👇 Importação do novo módulo de controle da sidebar
+import { setupSidebar } from "../dashboard/sidebar.js";
 
 // 1. Verifica segurança
 const usuario = checkAuth();
@@ -15,6 +18,8 @@ if (usuario) {
 
     initUserUI(usuario);
     initBacklogModal();
+    // 👇 Inicializa o recurso de colapsar/esticar a barra lateral
+    setupSidebar();
 
     // ========================================================
     // MOCK INTELIGENTE (Não sobrescreve mais seus dados no F5)
@@ -28,7 +33,7 @@ if (usuario) {
         );
     }
 
-    // 🔥 SÓ CRIA AS SPRINTS FAKES SE NÃO EXISTIR NENHUMA SALVA
+    // Cria os dados de sprints padrão se não existirem
     if (!localStorage.getItem("sprints")) {
         localStorage.setItem(
             "sprints",
@@ -44,42 +49,11 @@ if (usuario) {
         );
     }
 
-    // 🔥 SÓ CRIA AS TASKS FAKES SE NÃO EXISTIR NENHUMA SALVA (Sincronizado com a chave certa)
+    // SE O LOCALSTORAGE ESTIVER VAZIO, CRIA APENAS UM ARRAY DE TAREFAS ZERADO (SEM MOCKS)
     if (!localStorage.getItem("taskflow_tasks")) {
-        localStorage.setItem(
-            "taskflow_tasks",
-            JSON.stringify([
-                {
-                    id: crypto.randomUUID(),
-                    projectId: "1",
-                    sprintId: "1",
-                    title: "CRUD completo de tarefas",
-                    priority: "high",
-                    responsible: "JS",
-                    status: "backlog",
-                    dueDate: "12 mai"
-                },
-                {
-                    id: crypto.randomUUID(),
-                    projectId: "1",
-                    sprintId: "1",
-                    title: "Quadro Kanban com drag & drop",
-                    priority: "medium",
-                    responsible: "MC",
-                    status: "backlog",
-                    dueDate: "15 mai"
-                },
-                {
-                    id: crypto.randomUUID(),
-                    projectId: "1",
-                    sprintId: "1",
-                    title: "Filtros e busca de tarefas",
-                    priority: "low",
-                    responsible: "PS",
-                    status: "backlog",
-                    dueDate: "18 mai"
-                }
-            ])
-        );
+        localStorage.setItem("taskflow_tasks", JSON.stringify([]));
     }
+    
+    // INTEGRALIZAÇÃO HU04: Carrega as métricas oficiais (agora sincronizadas e limpas)
+    initDashboardMetrics();
 }
