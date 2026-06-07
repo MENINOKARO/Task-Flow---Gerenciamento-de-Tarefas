@@ -9,8 +9,6 @@ import {
 import { initBacklogModal } from "../backlog/backlog.modal.js";
 import { setupSidebar } from "./sidebar.js";
 import { initKanban } from "../kanban/kanban.js";
-
-// INTEGRALIZAÇÃO HU04: Importação do renderizador de métricas globais
 import { initDashboardMetrics } from "../dashboard/dashboard.js";
 
 // 1. Verifica segurança
@@ -23,6 +21,14 @@ if (usuario) {
     initBacklogModal();
     setupSidebar();
     initKanban();
+
+    // Controle de visibilidade do botão Relatórios baseado no perfil
+    const btnReports = document.getElementById("btn-reports");
+    if (btnReports) {
+        if (usuario.role !== "gerente") {
+            btnReports.style.display = "none"; // Oculta para não-gerentes
+        }
+    }
 
     // Cria os dados de projeto padrão se não existirem
     if (!localStorage.getItem("currentProject")) {
@@ -48,11 +54,9 @@ if (usuario) {
         );
     }
 
-    // SE O LOCALSTORAGE ESTIVER VAZIO, CRIA APENAS UM ARRAY DE TAREFAS ZERADO (SEM MOCKS)
     if (!localStorage.getItem("taskflow_tasks")) {
         localStorage.setItem("taskflow_tasks", JSON.stringify([]));
     }
     
-    // INTEGRALIZAÇÃO HU04: Carrega as métricas oficiais (agora sincronizadas e limpas)
     initDashboardMetrics();
 }
