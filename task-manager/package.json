@@ -16,7 +16,10 @@
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.3.0",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.8",
     "sortablejs": "^1.15.7",
-    "sweetalert2": "^11.26.24"
+    "sweetalert2": "^11.26.24",
+    "xlsx": "^0.18.5"
   }
 }
