@@ -35,7 +35,7 @@ document.querySelector("form").addEventListener("submit", function(e) {
     showMessage("#msg-feedback", "Login realizado com sucesso! Entrando...", "success");
 
     setTimeout(() => {
-      window.location.href = "dashboard.html";
+      window.location.href = "index.html";
     }, 1500);
 
   } else {

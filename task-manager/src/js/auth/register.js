@@ -4,17 +4,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const form = document.querySelector("form");
 
     if (!form) {
-        console.error("Formulário não encontrado! Verifique se a tag <form> existe no HTML.");
+        console.error("Formulário não encontrado!");
         return;
     }
 
     form.addEventListener("submit", function(event) {
         event.preventDefault();
 
-        // Seletores baseados na ordem dos inputs do seu HTML
         const username = form.querySelector("input[type='text']").value.trim();
         const email = form.querySelector("input[type='email']").value.trim();
         const password = form.querySelector("input[type='password']").value.trim();
+        const role = document.getElementById("user-role").value; // "gerente" ou "membro"
 
         if (!username || !email || !password) {
             showMessage("#msg-feedback", "Preencha todos os campos!", "error");
@@ -35,8 +35,8 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        // Salvar usuário
-        userList.push({ username, email, password });
+        // Salva usuário com perfil de acesso
+        userList.push({ username, email, password, role });
         localStorage.setItem("users", JSON.stringify(userList));
 
         showMessage("#msg-feedback", "Sucesso! Criando sua conta...", "success");

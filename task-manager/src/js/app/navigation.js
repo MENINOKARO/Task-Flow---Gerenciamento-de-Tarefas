@@ -1,7 +1,7 @@
 
 import { renderBacklogPage } from "../backlog/backlog.page.js";
-// INTEGRALIZAÇÃO HU04: Importa a lógica de cálculo do painel gerencial
 import { initDashboardMetrics } from "../dashboard/dashboard.js";
+import { initReports, reloadReports } from "../reports/reports.js";
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -19,10 +19,16 @@ document.addEventListener("DOMContentLoaded", () => {
         "btn-backlog": {
             element: document.getElementById("view-backlog"),
             title: "Backlog de Produto"
+        },
+        "btn-reports": {
+            element: document.getElementById("view-reports"),
+            title: "Relatórios"
         }
     };
 
     const pageTitle = document.getElementById("current-page-title");
+
+    let reportsInitialized = false;
 
     navButtons.forEach(btn => {
 
@@ -30,65 +36,64 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const target = btn.id;
 
-            // =========================
-            // RESETAR BOTÕES
-            // =========================
+            // ── Resetar botões ──
             navButtons.forEach(b => {
-                b.classList.remove(
-                    "bg-blue-50",
-                    "text-blue-600",
-                    "border-l-4",
-                    "border-blue-600",
-                    "font-bold",
-                    "shadow-sm"
-                );
-                b.classList.add(
-                    "text-slate-500",
-                    "font-semibold"
-                );
+                b.classList.remove("bg-blue-50","text-blue-600","border-l-4","border-blue-600","font-bold","shadow-sm");
+                b.classList.add("text-slate-500","font-semibold");
             });
 
-            // =========================
-            // BOTÃO ATIVO
-            // =========================
-            btn.classList.add(
-                "bg-blue-50",
-                "text-blue-600",
-                "border-l-4",
-                "border-blue-600",
-                "font-bold",
-                "shadow-sm"
-            );
-            btn.classList.remove(
-                "text-slate-500",
-                "font-semibold"
-            );
+            // ── Botão ativo ──
+            btn.classList.add("bg-blue-50","text-blue-600","border-l-4","border-blue-600","font-bold","shadow-sm");
+            btn.classList.remove("text-slate-500","font-semibold");
 
-            // =========================
-            // ESCONDER TODAS AS VIEWS
-            // =========================
+            // ── Esconder todas as views ──
             Object.values(views).forEach(view => {
-                view.element.classList.add("hidden");
+                if (view.element) {
+                    view.element.classList.add("hidden");
+                    view.element.classList.remove("flex");
+                }
             });
 
-            // =========================
-            // MOSTRAR VIEW SELECIONADA
-            // =========================
+            // ── Mostrar view selecionada ──
             const selectedView = views[target];
+            if (selectedView && selectedView.element) {
+                if (target === "btn-reports") {
+                    selectedView.element.classList.remove("hidden");
+                    selectedView.element.classList.add("flex");
+                } else {
+                    selectedView.element.classList.remove("hidden");
+                }
+                if (pageTitle) pageTitle.innerText = selectedView.title;
 
-            if (selectedView) {
-                selectedView.element.classList.remove("hidden");
-                pageTitle.innerText = selectedView.title;
-
-                // INTEGRALIZAÇÃO HU04: Se o administrador clicar no Dashboard, atualiza os dados em tempo real
                 if (target === "btn-dashboard") {
                     initDashboardMetrics();
                 }
+
+                if (target === "btn-reports") {
+                    if (!reportsInitialized) {
+                        // Primeira abertura: registra listeners e carrega dados
+                        initReports();
+                        // Observer para contador de linhas
+                        const observer = new MutationObserver(() => {
+                            const rows = document.querySelectorAll("#report-tbody tr").length;
+                            const label = document.getElementById("summary-count-label");
+                            if (label) {
+                                label.textContent = rows > 0
+                                    ? `${rows} tarefa${rows !== 1 ? "s" : ""} encontrada${rows !== 1 ? "s" : ""}`
+                                    : "";
+                            }
+                        });
+                        const tbody = document.getElementById("report-tbody");
+                        if (tbody) observer.observe(tbody, { childList: true });
+                        reportsInitialized = true;
+                    } else {
+                        // Visitas seguintes: apenas recarrega dados frescos sem re-registrar listeners
+                        reloadReports();
+                    }
+                }
             }
 
-            // =========================
-            // RENDER BACKLOG
-            // =========================
+            // ── Render Backlog ──
             if (target === "btn-backlog") {
                 renderBacklogPage();
             }
