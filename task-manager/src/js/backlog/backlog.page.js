@@ -6,6 +6,7 @@ import {
 } from "./backlog.storage.js";
 import { SprintCard } from "./components/SprintCard.js";
 import { sendSprintToKanban, createTask } from "./backlog.service.js";
+import Swal from "sweetalert2";
 
 // BUSCA OS USUÁRIOS EXATAMENTE DA CHAVE 'users' DO SEU REGISTER
 function getSystemUsers() {
@@ -322,11 +323,22 @@ function setupEvents() {
               }
             });
         } else {
-          if (confirm("Excluir tarefa? Essa ação não poderá ser desfeita.")) {
-            const tasks = getTasks();
-            saveTasks(tasks.filter((t) => t.id !== taskId));
-            renderBacklogPage();
-          }
+          Swal.fire({
+            title: "Excluir Tarefa?",
+            text: "Essa ação não poderá ser desfeita.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#ef4444",
+            cancelButtonColor: "#64748b",
+            confirmButtonText: "Sim, excluir",
+            cancelButtonText: "Cancelar",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              const tasks = getTasks();
+              saveTasks(tasks.filter((t) => t.id !== taskId));
+              renderBacklogPage();
+            }
+          });
         }
         return;
       }
@@ -359,19 +371,26 @@ function setupEvents() {
               }
             });
         } else {
-          if (
-            confirm(
-              "Excluir sprint? Essa ação não poderá ser desfeita. Todas as tarefas vinculadas também serão perdidas.",
-            )
-          ) {
-            const sprints = getSprints();
-            saveSprints(sprints.filter((s) => s.id !== sprintId));
+          Swal.fire({
+            title: "Excluir Sprint?",
+            text: "Essa ação não poderá ser desfeita. Todas as tarefas vinculadas também serão excluídas.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#ef4444",
+            cancelButtonColor: "#64748b",
+            confirmButtonText: "Sim, excluir",
+            cancelButtonText: "Cancelar",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              const sprints = getSprints();
+              saveSprints(sprints.filter((s) => s.id !== sprintId));
 
-            const tasks = getTasks();
-            saveTasks(tasks.filter((t) => t.sprintId !== sprintId));
+              const tasks = getTasks();
+              saveTasks(tasks.filter((t) => t.sprintId !== sprintId));
 
-            renderBacklogPage();
-          }
+              renderBacklogPage();
+            }
+          });
         }
         return;
       }
@@ -478,9 +497,12 @@ function setupEvents() {
           confirmButtonColor: "#1e293b",
         });
       } else {
-        alert(
-          "Sprint Iniciada! As tarefas vinculadas foram encaminhadas para o quadro Kanban.",
-        );
+        Swal.fire({
+          title: "Sprint Iniciada!",
+          text: "As tarefas vinculadas foram encaminhadas para o quadro Kanban.",
+          icon: "success",
+          confirmButtonColor: "#1e293b",
+        });
       }
       renderBacklogPage();
     });
@@ -541,7 +563,12 @@ function setupEvents() {
             "error",
           );
         } else {
-          alert("Erro: Nenhum projeto ativo selecionado!");
+          Swal.fire({
+            title: "Erro",
+            text: "Nenhum projeto ativo selecionado!",
+            icon: "error",
+            confirmButtonColor: "#1e293b",
+          });
         }
         return;
       }
@@ -555,9 +582,12 @@ function setupEvents() {
             confirmButtonColor: "#1e293b",
           });
         } else {
-          alert(
-            "Erro: A data de término não pode ser anterior à data de início da sprint.",
-          );
+          Swal.fire({
+            title: "Data Inválida",
+            text: "A data de término não pode ser anterior à data de início da sprint.",
+            icon: "error",
+            confirmButtonColor: "#1e293b",
+          });
         }
         return;
       }
@@ -587,7 +617,12 @@ function setupEvents() {
               confirmButtonColor: "#1e293b",
             });
           } else {
-            alert("Sucesso: Sprint alterada com sucesso.");
+            Swal.fire({
+              title: "Sucesso!",
+              text: "Sprint alterada com sucesso.",
+              icon: "success",
+              confirmButtonColor: "#1e293b",
+            });
           }
         } else {
           const newSprint = {
@@ -609,7 +644,12 @@ function setupEvents() {
               confirmButtonColor: "#1e293b",
             });
           } else {
-            alert("Sucesso: Sprint criada com sucesso.");
+            Swal.fire({
+              title: "Sucesso!",
+              text: "Sprint criada com sucesso.",
+              icon: "success",
+              confirmButtonColor: "#1e293b",
+            });
           }
         }
 
@@ -661,7 +701,12 @@ function setupEvents() {
         localStorage.getItem("taskflow_active_project_id") || "";
 
       if (!activeProjectId) {
-        alert("Nenhum projeto ativo selecionado!");
+        Swal.fire({
+          title: "Erro",
+          text: "Nenhum projeto ativo selecionado!",
+          icon: "error",
+          confirmButtonColor: "#1e293b",
+        });
         return;
       }
 
@@ -673,9 +718,12 @@ function setupEvents() {
             "warning",
           );
         } else {
-          alert(
-            "Aviso: Título, Responsável e Prazo são de preenchimento obrigatório.",
-          );
+          Swal.fire({
+            title: "Campos Obrigatórios",
+            text: "Título, Responsável e Prazo são de preenchimento obrigatório.",
+            icon: "warning",
+            confirmButtonColor: "#1e293b",
+          });
         }
         return;
       }
@@ -705,7 +753,12 @@ function setupEvents() {
               confirmButtonColor: "#1e293b",
             });
           } else {
-            alert("Sucesso: Tarefa alterada com sucesso.");
+            Swal.fire({
+              title: "Sucesso!",
+              text: "Tarefa alterada com sucesso.",
+              icon: "success",
+              confirmButtonColor: "#1e293b",
+            });
           }
         } else {
           const taskData = {
@@ -730,7 +783,12 @@ function setupEvents() {
               confirmButtonColor: "#1e293b",
             });
           } else {
-            alert("Sucesso: Tarefa registrada com sucesso.");
+            Swal.fire({
+              title: "Sucesso!",
+              text: "Tarefa registrada com sucesso.",
+              icon: "success",
+              confirmButtonColor: "#1e293b",
+            });
           }
         }
 
