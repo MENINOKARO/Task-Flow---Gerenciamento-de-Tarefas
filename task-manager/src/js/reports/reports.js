@@ -6,6 +6,10 @@
 
 import { getTasks } from "../backlog/backlog.storage.js";
 import { checkAuth } from "../auth/session.js";
+import { showToast } from "../utils/toast.js";
+import * as XLSXLib from "xlsx";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 
 // ─────────────────────────────────────────────
 // MAPEAMENTOS DE EXIBIÇÃO
@@ -442,9 +446,6 @@ async function exportPDF() {
   btn.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Gerando...';
 
   try {
-    const { jsPDF } = window.jspdf;
-    if (!jsPDF) throw new Error("jsPDF não carregado. Verifique sua conexão com a internet.");
-
     const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
 
     doc.setFillColor(37, 99, 235);
@@ -476,7 +477,7 @@ async function exportPDF() {
       ];
     });
 
-    doc.autoTable({
+    autoTable(doc, {
       startY: 26,
       head: [["Tarefa", "Descri\u00e7\u00e3o", "Projeto", "Status", "Respons\u00e1vel", "Prazo", "Prioridade", "In\u00edcio", "Conclus\u00e3o", "Dura\u00e7\u00e3o"]],
       body: rows,
@@ -499,10 +500,11 @@ async function exportPDF() {
     });
 
     doc.save(`relatorio-tarefas-${now.toISOString().slice(0, 10)}.pdf`);
+    showToast("PDF gerado com sucesso!", "success");
 
   } catch (err) {
     console.error("Erro ao gerar PDF:", err);
-    alert("Erro ao gerar PDF: " + err.message);
+    Swal.fire({ title: "Erro ao gerar PDF", text: err.message, icon: "error", confirmButtonColor: "#1e293b" });
   } finally {
     btn.disabled = false;
     btn.innerHTML = '<i class="ph ph-file-pdf"></i> Exportar PDF';
@@ -519,9 +521,6 @@ async function exportExcel() {
   btn.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Gerando...';
 
   try {
-    const XLSXLib = window.XLSX;
-    if (!XLSXLib) throw new Error("SheetJS não carregado. Verifique sua conexão com a internet.");
-
     const now    = new Date();
     const wsData = [["Tarefa", "Descri\u00e7\u00e3o", "Projeto", "Status", "Respons\u00e1vel", "Prazo", "Prioridade", "In\u00edcio", "Conclus\u00e3o", "Dura\u00e7\u00e3o"]];
 
@@ -547,10 +546,11 @@ async function exportExcel() {
     ws["!cols"] = [{ wch:40 }, { wch:50 }, { wch:25 }, { wch:15 }, { wch:25 }, { wch:12 }, { wch:12 }, { wch:20 }, { wch:20 }, { wch:15 }];
     XLSXLib.utils.book_append_sheet(wb, ws, "Relat\u00f3rio de Tarefas");
     XLSXLib.writeFile(wb, `relatorio-tarefas-${now.toISOString().slice(0, 10)}.xlsx`);
+    showToast("Excel gerado com sucesso!", "success");
 
   } catch (err) {
     console.error("Erro ao gerar Excel:", err);
-    alert("Erro ao gerar Excel: " + err.message);
+    Swal.fire({ title: "Erro ao gerar Excel", text: err.message, icon: "error", confirmButtonColor: "#1e293b" });
   } finally {
     btn.disabled = false;
     btn.innerHTML = '<i class="ph ph-file-xls"></i> Exportar Excel';
