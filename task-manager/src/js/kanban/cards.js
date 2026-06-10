@@ -1,5 +1,6 @@
 
 import { openDashboardEditModal } from "./events.js";
+import Swal from "sweetalert2";
 
 
 import { editingCard } from "./state.js";
@@ -297,10 +298,21 @@ export function createCard(task) {
       }
 
       if (event.target.closest(".btn-trigger-delete")) {
-        if (confirm("Deseja realmente apagar este comentário?")) {
-          salvarComentariosGlobais(listaAtual.filter(c => c.id !== commentId));
-          renderizarListaComentarios();
-        }
+        Swal.fire({
+          title: "Apagar Comentário?",
+          text: "Essa ação não poderá ser desfeita.",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#ef4444",
+          cancelButtonColor: "#64748b",
+          confirmButtonText: "Sim, apagar",
+          cancelButtonText: "Cancelar",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            salvarComentariosGlobais(listaAtual.filter(c => c.id !== commentId));
+            renderizarListaComentarios();
+          }
+        });
         return;
       }
     });
@@ -450,9 +462,18 @@ export function createCard(task) {
           if (result.isConfirmed) ejecutarExclusao();
         });
       } else {
-        if (confirm("Deseja realmente excluir esta tarefa permanentemente?")) {
-          ejecutarExclusao();
-        }
+        Swal.fire({
+          title: "Excluir Tarefa?",
+          text: "Essa ação não poderá ser desfeita.",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#ef4444",
+          cancelButtonColor: "#64748b",
+          confirmButtonText: "Sim, excluir",
+          cancelButtonText: "Cancelar",
+        }).then((result) => {
+          if (result.isConfirmed) ejecutarExclusao();
+        });
       }
     });2
   }

@@ -1,4 +1,5 @@
 // Estado global do módulo de projetos
+import Swal from "sweetalert2";
 let projects = JSON.parse(localStorage.getItem('taskflow_projects')) || [];
 let activeProjectId = localStorage.getItem('taskflow_active_project_id') || '';
 // Nova variável de controle para saber se estamos editando ou criando
@@ -108,7 +109,12 @@ function openModal(editMode = false) {
         
         // TRAVA DE SEGURANÇA: Impede abrir o modo de edição se o usuário logado não for o gerente
         if (projectToEdit && usuarioLogado && projectToEdit.manager !== usuarioLogado.email) {
-            alert("Ação negada! Apenas o gerente do projeto pode editá-lo.");
+            Swal.fire({
+                title: "Ação Negada",
+                text: "Apenas o gerente do projeto pode editá-lo.",
+                icon: "error",
+                confirmButtonColor: "#1e293b",
+            });
             return;
         }
     }
@@ -184,7 +190,12 @@ function handleSaveProject(e) {
         if (projectToEdit) {
             // Garante a segurança mesmo que o formulário seja forçado por código
             if (usuarioLogado && projectToEdit.manager !== usuarioLogado.email) {
-                alert("Você não tem permissão para alterar este projeto.");
+                Swal.fire({
+                    title: "Acesso Negado",
+                    text: "Você não tem permissão para alterar este projeto.",
+                    icon: "error",
+                    confirmButtonColor: "#1e293b",
+                });
                 closeModal();
                 return;
             }
@@ -233,27 +244,42 @@ function handleDeleteProject() {
     // TRAVA DE SEGURANÇA: Verifica se quem está tentando excluir é de fato o dono/gerente
     const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
     if (usuarioLogado && projectToDelete.manager !== usuarioLogado.email) {
-        alert("Ação negada! Apenas o gerente do projeto pode excluí-lo.");
+        Swal.fire({
+            title: "Ação Negada",
+            text: "Apenas o gerente do projeto pode excluí-lo.",
+            icon: "error",
+            confirmButtonColor: "#1e293b",
+        });
         return;
     }
 
-    const confirmText = `Deseja realmente excluir o projeto "${projectToDelete.name}"?\nEsta ação não poderá ser desfeita.`;
-    if (!confirm(confirmText)) return;
+    Swal.fire({
+        title: "Excluir Projeto",
+        text: `Deseja realmente excluir o projeto "${projectToDelete.name}"? Esta ação não poderá ser desfeita.`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#ef4444",
+        cancelButtonColor: "#64748b",
+        confirmButtonText: "Sim, excluir",
+        cancelButtonText: "Cancelar",
+    }).then((result) => {
+        if (!result.isConfirmed) return;
 
-    // Filtra o array removendo o projeto atual
-    projects = projects.filter(p => p.id !== activeProjectId);
-    localStorage.setItem('taskflow_projects', JSON.stringify(projects));
+        // Filtra o array removendo o projeto atual
+        projects = projects.filter(p => p.id !== activeProjectId);
+        localStorage.setItem('taskflow_projects', JSON.stringify(projects));
 
-    // Remove as tarefas vinculadas
-    let tasks = JSON.parse(localStorage.getItem('taskflow_tasks')) || [];
-    tasks = tasks.filter(task => task.projectId !== activeProjectId);
-    localStorage.setItem('taskflow_tasks', JSON.stringify(tasks));
+        // Remove as tarefas vinculadas
+        let tasks = JSON.parse(localStorage.getItem('taskflow_tasks')) || [];
+        tasks = tasks.filter(task => task.projectId !== activeProjectId);
+        localStorage.setItem('taskflow_tasks', JSON.stringify(tasks));
 
-    // Reseta o estado ativo
-    activeProjectId = '';
-    localStorage.setItem('taskflow_active_project_id', '');
+        // Reseta o estado ativo
+        activeProjectId = '';
+        localStorage.setItem('taskflow_active_project_id', '');
 
-    window.location.reload();
+        window.location.reload();
+    });
 }
 
 function renderProjectSelector() {
