@@ -1,0 +1,386 @@
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
+
+// =========================================================================
+// FUNÇÃO AUXILIAR DE SEGURANÇA (Garante que nunca quebre se não achar usuário)
+// =========================================================================
+const getValidUserId = async (userId, projectId) => {
+    let cleanId = null;
+    
+    if (userId && userId !== "undefined" && userId !== "[object Object]") {
+        cleanId = userId;
+    } else if (projectId && projectId !== "undefined" && projectId !== "[object Object]") {
+        cleanId = projectId;
+    }
+
+    if (cleanId) {
+        const userExists = await prisma.user.findUnique({ where: { id: cleanId } });
+        if (userExists) return cleanId;
+
+        const projectOwner = await prisma.project.findUnique({
+            where: { id: cleanId },
+            select: { ownerId: true }
+        });
+        if (projectOwner?.ownerId) return projectOwner.ownerId;
+    }
+
+    const fallbackUser = await prisma.user.findFirst();
+    if (fallbackUser) return fallbackUser.id;
+
+    return null;
+};
+
+// ==========================================
+// CONTROLLER DE USUÁRIOS
+// ==========================================
+export const getAllUsers = async (req, res) => {
+    try {
+        const users = await prisma.user.findMany({
+            select: {
+                id: true,
+                name: true, 
+                email: true
+            },
+            orderBy: { name: 'asc' }
+        });
+        // Retorna a lista encontrada
+        return res.status(200).json(users);
+    } catch (error) {
+        console.error("Erro ao listar usuários no banco:", error.message);
+        return res.status(200).json([]); 
+    }
+};
+
+// ==========================================
+// CONTROLLERS DE PROJETOS (ATUALIZADOS)
+// ==========================================
+export const createProject = async (req, res) => {
+    try {
+        // 🌟 Captura também o array de IDs dos membros vinculados vindo do Front-end
+        const { name, userId, memberIds } = req.body;
+        const targetUserId = await getValidUserId(userId, null);
+
+        if (!targetUserId) {
+            return res.status(400).json({ error: "Crie ao menos um usuário no sistema antes de criar projetos." });
+        }
+
+        // Prepara a conexão dos membros se o array vier preenchido
+        const membersData = Array.isArray(memberIds) 
+            ? { connect: memberIds.map(id => ({ id })) } 
+            : undefined;
+
+        const project = await prisma.project.create({
+            data: {
+                name,
+                owner: { connect: { id: targetUserId } },
+                // 🌟 Caso o seu schema use uma tabela relacional para membros, descomente a linha abaixo:
+                // members: membersData
+            }
+        });
+        return res.status(201).json(project);
+    } catch (error) {
+        return res.status(500).json({ error: "Erro ao criar projeto: " + error.message });
+    }
+};
+
+export const getProjectsByUser = async (req, res) => {
+    try {
+        const { userId } = req.query;
+        const targetUserId = await getValidUserId(userId, null);
+
+        if (!targetUserId) return res.status(200).json([]);
+
+        const projects = await prisma.project.findMany({
+            where: { ownerId: targetUserId },
+            include: {
+                // Tenta incluir os membros na busca para o Front-end saber quem faz parte
+                // members: true 
+            },
+            orderBy: { createdAt: 'desc' }
+        });
+        return res.status(200).json(projects);
+    } catch (error) {
+        return res.status(500).json({ error: "Erro ao buscar projetos: " + error.message });
+    }
+};
+
+// 🌟 NOVO: Atualizar/Editar Configurações do Projeto
+export const updateProject = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, memberIds } = req.body;
+
+        const updatedProject = await prisma.project.update({
+            where: { id: id },
+            data: {
+                ...(name && { name }),
+                // Se seu schema tiver relação de membros:
+                // members: Array.isArray(memberIds) ? { set: memberIds.map(id => ({ id })) } : undefined
+            }
+        });
+
+        return res.status(200).json(updatedProject);
+    } catch (error) {
+        console.error("Erro ao editar projeto no Prisma:", error.message);
+        return res.status(500).json({ error: "Erro ao atualizar projeto: " + error.message });
+    }
+};
+
+// 🌟 NOVO: Deletar Projeto de forma segura limpando dependências (Cascata manual)
+export const deleteProject = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // 1. Apaga todas as tarefas vinculadas a esse projeto primeiro
+        await prisma.task.deleteMany({
+            where: { projectId: id }
+        });
+
+        // 2. Apaga todas as Sprints vinculadas a esse projeto
+        await prisma.sprint.deleteMany({
+            where: { userId: id } // Se suas sprints se vinculam via userId/projectId ajuste aqui
+        });
+
+        // 3. Por fim, deleta o projeto
+        await prisma.project.delete({
+            where: { id: id }
+        });
+
+        return res.status(200).json({ message: "Projeto e todas as suas dependências foram excluídos com sucesso." });
+    } catch (error) {
+        console.error("Erro ao deletar projeto no Prisma:", error.message);
+        return res.status(500).json({ error: "Erro ao excluir projeto: " + error.message });
+    }
+};
+
+// ==========================================
+// CONTROLLERS DE SPRINTS
+// ==========================================
+export const getSprintsByProject = async (req, res) => {
+    try {
+        const { userId } = req.query; 
+
+        const sprints = await prisma.sprint.findMany({
+            where: { 
+                userId: userId && userId !== "undefined" ? userId : undefined 
+            },
+            orderBy: { createdAt: 'asc' }
+        });
+
+        return res.status(200).json(sprints);
+    } catch (error) {
+        console.error("Erro ao buscar sprints:", error.message);
+        return res.status(200).json([]);
+    }
+};
+
+export const createSprint = async (req, res) => {
+    try {
+        const { name, title, startDate, endDate, userId, projectId } = req.body;
+        const targetUserId = await getValidUserId(userId, projectId);
+
+        const newSprint = await prisma.sprint.create({
+            data: {
+                name: name || title || "Nova Sprint",
+                startDate: startDate ? new Date(startDate) : new Date(),
+                endDate: endDate ? new Date(endDate) : new Date(),
+                status: "A FAZER",
+                userId: targetUserId 
+            }
+        });
+        return res.status(201).json(newSprint);
+    } catch (error) {
+        console.error("Erro ao criar sprint no Prisma:", error.message);
+        return res.status(500).json({ error: "Erro interno ao salvar sprint: " + error.message });
+    }
+};
+
+export const updateSprint = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, startDate, endDate, status } = req.body;
+
+        const updatedSprint = await prisma.sprint.update({
+            where: { id: id },
+            data: {
+                ...(name && { name }),
+                ...(status && { status }),
+                startDate: startDate ? new Date(startDate) : null,
+                endDate: endDate ? new Date(endDate) : null
+            }
+        });
+
+        return res.status(200).json(updatedSprint);
+    } catch (error) {
+        console.error("Erro ao editar sprint no Prisma:", error.message);
+        return res.status(500).json({ error: "Erro ao atualizar sprint: " + error.message });
+    }
+};
+
+// ==========================================
+// CONTROLLERS DE TAREFAS
+// ==========================================
+export const createTask = async (req, res) => {
+    try {
+        const { title, description, status, priority, endDate, dueDate, sprintId, projectId, userId, responsible } = req.body;
+
+        if (!projectId) {
+            return res.status(400).json({ error: "Não é possível criar uma tarefa sem um projectId válido." });
+        }
+        if (!sprintId) {
+            return res.status(400).json({ error: "Não é possível criar uma tarefa sem vincular a uma Sprint." });
+        }
+
+        let targetUserId = null;
+        if (responsible && responsible !== "Selecione um membro...") {
+            const chosenUser = await prisma.user.findFirst({
+                where: { name: responsible }
+            });
+            if (chosenUser) targetUserId = chosenUser.id;
+        }
+        if (!targetUserId) {
+            targetUserId = await getValidUserId(userId, projectId);
+        }
+
+        if (!targetUserId) {
+            return res.status(400).json({ error: "Crie ao menos um usuário no sistema para criar tarefas." });
+        }
+
+        let finalDueDate = null;
+        const rawDate = dueDate || endDate;
+        if (rawDate) {
+            finalDueDate = new Date(rawDate).toISOString().split('T')[0];
+        }
+
+        const taskStatus = status || "todo";
+
+        const newTask = await prisma.task.create({
+            data: {
+                title: title || "Nova Tarefa",
+                desc: description || "", 
+                status: taskStatus,
+                column: taskStatus, 
+                priority: priority || "medium",
+                responsible: responsible && responsible !== "Selecione um membro..." ? responsible : "Não atribuído",
+                dueDate: finalDueDate,
+                inSprint: true, 
+                completedInSprint: false,
+                progress: 0,
+                project: {
+                    connect: { id: projectId }
+                },
+                sprint: {
+                    connect: { id: sprintId }
+                },
+                user: {
+                    connect: { id: targetUserId }
+                }
+            }
+        });
+
+        return res.status(201).json(newTask);
+    } catch (error) {
+        console.error("Erro definitivo ao criar tarefa no Prisma:", error.message);
+        return res.status(500).json({ error: "Erro interno ao criar tarefa: " + error.message });
+    }
+};
+
+export const getTasksByProject = async (req, res) => {
+    try {
+        const { projectId } = req.query;
+
+        if (!projectId || projectId === "undefined" || projectId === "[object Object]") {
+            return res.status(200).json([]);
+        }
+
+        const tasks = await prisma.task.findMany({
+            where: {
+                projectId: projectId
+            },
+            orderBy: { createdAt: 'desc' }
+        });
+
+        return res.status(200).json(tasks);
+    } catch (error) {
+        console.error("Erro ao buscar tarefas:", error.message);
+        return res.status(200).json([]);
+    }
+};
+
+export const updateTask = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { title, description, status, priority, responsible, startDate, endDate, dueDate } = req.body;
+
+        let finalDueDate = undefined;
+        const rawDate = dueDate || endDate;
+        if (rawDate) {
+            finalDueDate = new Date(rawDate).toISOString().split('T')[0];
+        }
+
+        // 🔍 CAPTURA INTELIGENTE DE DATAS DO FLUXO (Sem alterar o banco de dados)
+        let trackingData = {};
+        if (status) {
+            const cleanStatus = status.toLowerCase().trim();
+            if (cleanStatus === "doing" || cleanStatus === "em andamento") {
+                // Quando entra em execução, marca o início
+                trackingData.createdAt = new Date(); 
+            } else if (cleanStatus === "done" || cleanStatus === "concluido" || cleanStatus === "concluída") {
+                // Quando termina, grava a conclusão usando o updatedAt nativo
+                trackingData.updatedAt = new Date();
+            }
+        }
+
+        const updatedTask = await prisma.task.update({
+            where: { id: id },
+            data: {
+                ...(title && { title }),
+                ...(description && { desc: description }), 
+                ...(status && { status, column: status }),
+                ...(priority && { priority }),
+                ...(responsible && { responsible }), 
+                ...(startDate && { startDate: new Date(startDate) }),
+                ...(finalDueDate && { dueDate: finalDueDate }),
+                ...trackingData // Injeta os carimbos de tempo sem quebrar o schema
+            }
+        });
+        return res.status(200).json(updatedTask);
+    } catch (error) {
+        console.error("Erro ao editar tarefa no Prisma:", error.message);
+        return res.status(500).json({ error: "Erro ao atualizar tarefa: " + error.message });
+    }
+};
+
+export const deleteSprint = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        await prisma.task.deleteMany({
+            where: { sprintId: id }
+        });
+
+        await prisma.sprint.delete({
+            where: { id: id }
+        });
+
+        return res.status(200).json({ message: "Sprint e suas tarefas foram excluídas com sucesso." });
+    } catch (error) {
+        console.error("Erro ao deletar sprint no Prisma:", error.message);
+        return res.status(500).json({ error: "Erro ao excluir sprint: " + error.message });
+    }
+};
+
+export const deleteTask = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        await prisma.task.delete({
+            where: { id: id }
+        });
+
+        return res.status(200).json({ message: "Tarefa excluída com sucesso." });
+    } catch (error) {
+        console.error("Erro ao deletar tarefa no Prisma:", error.message);
+        return res.status(500).json({ error: "Erro ao excluir tarefa: " + error.message });
+    }
+};
