@@ -45,12 +45,14 @@ O **TaskFlow** nasceu da necessidade de equipes que buscam uma gestão visual si
 
 ## 👥 Integrantes e Contato
 
+## 👥 Integrantes e Contato
+
 | Nome | Função no Projeto | GitHub | LinkedIn | E-mail |
 | :--- | :--- | :--- | :--- | :--- |
 | **Vitor Vitoriano** | Full-Stack Developer | [@Vitor-Vitoriano](https://github.com/Vitor-Vitoriano) | [LinkedIn](https://www.linkedin.com/in/vitor-vitoriano-20921b327/) | [vtndigitalx@gmail.com](mailto:vtndigitalx@gmail.com) |
 | **Matheus Costa** | Front-End Developer | [@LinkMatheusDev](https://github.com/LinkMatheusDev) | [LinkedIn](https://www.linkedin.com/in/linkmatheusdev) | [Matheusbcosta03@gmail.com](mailto:Matheusbcosta03@gmail.com) |
 | **Júlia Moreira** | Scrum Master | [@JuMoreira571](https://github.com/JuMoreira571) | [LinkedIn](https://www.linkedin.com/in/juliamoreiraeng/) | [juliamoreirasilva404@gmail.com](mailto:juliamoreirasilva404@gmail.com) |
----
+| **Ícaro Sotero** | Product Owner | [@MENINOKARO](https://github.com/MENINOKARO) | [LinkedIn](https://www.linkedin.com/in/%C3%ADcaro-sotero-oliveira-40639b251?utm_source=share_via&utm_content=profile&utm_medium=member_android) | [icarosotero@gmail.com](mailto:icarosotero@gmail.com) |
 
 👩‍💻 Benefícios do Projeto :
 Organização Visual: Divisão clara de tarefas pendentes, em andamento e concluídas através de um sistema Kanban interativo.
