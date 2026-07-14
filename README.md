@@ -63,3 +63,19 @@ Experiência Limpa: Alertas interativos e amigáveis para confirmação de açõ
 
 📞 Contato
 Para mais informações ou para colaborar com o projeto, entre em contato com os desenvolvedores através dos perfis do GitHub. 
+
+
+<img width="1600" height="802" alt="login" src="https://github.com/user-attachments/assets/2d834a64-bd3d-46fc-b565-265f51e77ae6" />
+<img width="1600" height="802" alt="registro" src="https://github.com/user-attachments/assets/293ed9e7-3aac-4a51-8c51-15ef4f338a65" />
+<img width="1600" height="802" alt="dashboard" src="https://github.com/user-attachments/assets/c8c08b9c-ea5d-43fe-99aa-7f7de5e8f670" />
+<img width="1600" height="802" alt="kanban" src="https://github.com/user-attachments/assets/5df3ccbc-365d-4d15-9c9b-702303acf2c8" />
+<img width="1600" height="802" alt="backlog" src="https://github.com/user-attachments/assets/90308d9d-1012-4198-84c3-527aeb85e91e" />
+<img width="1600" height="802" alt="usuarios" src="https://github.com/user-attachments/assets/b319eca5-ffc8-4e11-8611-684ecc649a00" />
+<img width="1600" height="802" alt="relatorios" src="https://github.com/user-attachments/assets/dc890cb0-6a0b-4727-a585-49d4fd9edd16" />
+
+
+
+
+
+
+
