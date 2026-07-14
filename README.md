@@ -45,8 +45,6 @@ O **TaskFlow** nasceu da necessidade de equipes que buscam uma gestão visual si
 
 ## 👥 Integrantes e Contato
 
-## 👥 Integrantes e Contato
-
 | Nome | Função no Projeto | GitHub | LinkedIn | E-mail |
 | :--- | :--- | :--- | :--- | :--- |
 | **Vitor Vitoriano** | Full-Stack Developer | [@Vitor-Vitoriano](https://github.com/Vitor-Vitoriano) | [LinkedIn](https://www.linkedin.com/in/vitor-vitoriano-20921b327/) | [vtndigitalx@gmail.com](mailto:vtndigitalx@gmail.com) |
